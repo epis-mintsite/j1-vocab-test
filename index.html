@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>でる度単語テスト 準１級</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background: #f0f2f5; color: #333; }
+
+  /* Settings Panel */
+  .settings {
+    max-width: 560px; margin: 30px auto; background: #fff;
+    border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.1); padding: 28px;
+  }
+  .settings h1 {
+    text-align: center; font-size: 22px; margin-bottom: 20px;
+    border-bottom: 3px solid #2563eb; padding-bottom: 12px;
+  }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; }
+  .form-row { display: flex; gap: 12px; align-items: center; }
+  .form-row input[type=number] {
+    width: 100px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px;
+    font-size: 15px; text-align: center;
+  }
+  .form-row span { font-size: 14px; color: #666; }
+  .radio-group { display: flex; gap: 20px; margin-top: 4px; }
+  .radio-group label { font-weight: normal; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 4px; }
+  .info-text { font-size: 12px; color: #888; margin-top: 6px; }
+  .btn {
+    display: block; width: 100%; padding: 14px; border: none; border-radius: 8px;
+    font-size: 16px; font-weight: bold; cursor: pointer; transition: background .2s;
+  }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #e5e7eb; color: #333; margin-top: 10px; }
+  .btn-secondary:hover { background: #d1d5db; }
+  .btn-answer { background: #10b981; color: #fff; margin-top: 10px; }
+  .btn-answer:hover { background: #059669; }
+
+  /* Test Sheet */
+  .test-sheet {
+    max-width: 900px; margin: 0 auto; background: #fff; padding: 24px 32px;
+    min-height: 100vh;
+  }
+  .test-header {
+    border: 2px solid #333; padding: 8px 16px; margin-bottom: 4px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .test-header h2 { font-size: 22px; }
+  .test-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; font-size: 13px; color: #555;
+  }
+  .test-meta .range { font-weight: bold; }
+  .score-box { font-weight: bold; font-size: 15px; }
+
+  .test-grid { display: grid; gap: 0; }
+  .test-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .test-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .test-item {
+    padding: 6px 10px; border-bottom: 1px solid #eee;
+  }
+  .test-item .word-num { font-size: 11px; color: #999; }
+  .test-item .word-en { font-size: 17px; font-weight: 500; margin: 2px 0; }
+  .test-item .answer-line {
+    border-bottom: 1px solid #999; height: 24px; margin-top: 2px;
+  }
+  .test-item .answer-input {
+    width: 100%; border: none; border-bottom: 1.5px solid #999;
+    font-size: 14px; padding: 4px 0; outline: none; background: transparent;
+    font-family: inherit;
+  }
+  .test-item .answer-input:focus { border-bottom-color: #2563eb; }
+  .test-item .answer-text {
+    font-size: 14px; color: #2563eb; font-weight: 500; margin-top: 2px;
+  }
+  .test-item .answer-correct { color: #10b981; }
+  .test-item .answer-wrong { color: #ef4444; }
+
+  /* Action bar */
+  .action-bar {
+    max-width: 900px; margin: 0 auto; padding: 16px 32px;
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    background: #fff; border-top: 1px solid #eee;
+    position: sticky; bottom: 0;
+  }
+  .action-bar .btn { width: auto; padding: 10px 24px; font-size: 14px; }
+
+  /* Print styles */
+  @media print {
+    body { background: #fff; }
+    .action-bar { display: none !important; }
+    .settings { display: none !important; }
+    .test-sheet { padding: 10px; box-shadow: none; }
+    .test-item .answer-input { display: none; }
+    .test-item .answer-line-print { border-bottom: 1px solid #999; height: 22px; }
+    @page { margin: 10mm; }
+  }
+
+  /* Mode: interactive quiz */
+  .quiz-result {
+    text-align: center; padding: 40px 20px;
+    max-width: 560px; margin: 30px auto; background: #fff;
+    border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  }
+  .quiz-result h2 { font-size: 28px; margin-bottom: 16px; }
+  .quiz-result .score { font-size: 64px; font-weight: bold; color: #2563eb; }
+  .quiz-result .detail { font-size: 16px; color: #666; margin: 12px 0; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .settings { margin: 10px; padding: 18px; }
+    .test-sheet { padding: 12px; }
+    .test-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+    .test-header h2 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Settings Screen -->
+<div id="settingsScreen" class="settings">
+  <h1>でる度単語テスト 準１級</h1>
+
+  <div class="form-group">
+    <label>出題範囲（1〜1600）</label>
+    <div class="form-row">
+      <input type="number" id="rangeFrom" min="1" max="1600" value="1" placeholder="From">
+      <span>〜</span>
+      <input type="number" id="rangeTo" min="1" max="1600" value="100" placeholder="To">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>出題数</label>
+    <div class="radio-group">
+      <label><input type="radio" name="countMode" value="all" checked onchange="toggleCountInput()"> 全て出題</label>
+      <label><input type="radio" name="countMode" value="random" onchange="toggleCountInput()"> ランダム抽出</label>
+    </div>
+    <div class="form-row" style="margin-top:8px;">
+      <input type="number" id="wordCount" min="1" max="1600" value="40" disabled placeholder="問題数">
+      <span>語</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>出題順</label>
+    <div class="radio-group">
+      <label><input type="radio" name="sortMode" value="sequential" checked> 順番通り</label>
+      <label><input type="radio" name="sortMode" value="random"> ランダム</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>レイアウト</label>
+    <div class="radio-group">
+      <label><input type="radio" name="cols" value="2" checked> ２列</label>
+      <label><input type="radio" name="cols" value="3"> ３列</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>出題方向</label>
+    <div class="radio-group">
+      <label><input type="radio" name="direction" value="en2ja" checked> 英語→日本語</label>
+      <label><input type="radio" name="direction" value="ja2en"> 日本語→英語</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>モード</label>
+    <div class="radio-group">
+      <label><input type="radio" name="mode" value="print" checked> 印刷用テスト</label>
+      <label><input type="radio" name="mode" value="interactive"> 画面上で回答</label>
+    </div>
+  </div>
+
+  <p class="info-text" id="infoText">現在の設定で100語出題されます。</p>
+
+  <button class="btn btn-primary" onclick="generateTest()">テスト作成</button>
+</div>
+
+<!-- Test Screen -->
+<div id="testScreen" style="display:none;">
+  <div class="test-sheet" id="testSheet"></div>
+  <div class="action-bar" id="actionBar"></div>
+</div>
+
+<!-- Result Screen -->
+<div id="resultScreen" style="display:none;"></div>
+
+<script src="words.js"></script>
+<script>
+// State
+let testWords = [];
+let isInteractive = false;
+let direction = 'en2ja';
+
+// Update info text on input change
+document.querySelectorAll('#settingsScreen input').forEach(el => {
+  el.addEventListener('change', updateInfo);
+  el.addEventListener('input', updateInfo);
+});
+
+function toggleCountInput() {
+  const mode = document.querySelector('input[name=countMode]:checked').value;
+  document.getElementById('wordCount').disabled = (mode === 'all');
+  updateInfo();
+}
+
+function updateInfo() {
+  const from = parseInt(document.getElementById('rangeFrom').value) || 1;
+  const to = parseInt(document.getElementById('rangeTo').value) || 1;
+  const mode = document.querySelector('input[name=countMode]:checked').value;
+  const count = parseInt(document.getElementById('wordCount').value) || 0;
+  const total = Math.max(0, to - from + 1);
+  const n = mode === 'all' ? total : Math.min(count, total);
+  document.getElementById('infoText').textContent = `現在の設定で${n}語出題されます。`;
+}
+
+function generateTest() {
+  const from = parseInt(document.getElementById('rangeFrom').value);
+  const to = parseInt(document.getElementById('rangeTo').value);
+  const countMode = document.querySelector('input[name=countMode]:checked').value;
+  const sortMode = document.querySelector('input[name=sortMode]:checked').value;
+  const cols = parseInt(document.querySelector('input[name=cols]:checked').value);
+  direction = document.querySelector('input[name=direction]:checked').value;
+  isInteractive = document.querySelector('input[name=mode]:checked').value === 'interactive';
+
+  if (from < 1 || to > 1600 || from > to) {
+    alert('出題範囲を正しく入力してください（1〜1600）');
+    return;
+  }
+
+  // Get words in range
+  let pool = WORDS.filter(w => w.id >= from && w.id <= to);
+
+  let n;
+  if (countMode === 'all') {
+    n = pool.length;
+  } else {
+    n = parseInt(document.getElementById('wordCount').value);
+    if (!n || n < 1) { alert('問題数を入力してください'); return; }
+    n = Math.min(n, pool.length);
+  }
+
+  // Random selection (Fisher-Yates)
+  if (countMode === 'random') {
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    pool = pool.slice(0, n);
+  }
+
+  // Sort
+  if (sortMode === 'random' || (countMode === 'random' && sortMode === 'random')) {
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+  } else {
+    pool.sort((a, b) => a.id - b.id);
+  }
+
+  testWords = pool;
+  renderTest(cols, from, to);
+}
+
+function renderTest(cols, from, to) {
+  const today = new Date().toLocaleDateString('ja-JP');
+  const sheet = document.getElementById('testSheet');
+
+  let html = `
+    <div class="test-header">
+      <h2>でる度単語テスト 準１級</h2>
+      <span class="score-box">&nbsp;&nbsp;&nbsp;&nbsp;/${testWords.length}</span>
+    </div>
+    <div class="test-meta">
+      <span>Date: ${today}</span>
+      <span class="range">出題範囲 ${from} 〜 ${to}</span>
+    </div>
+    <div class="test-grid cols-${cols}">
+  `;
+
+  testWords.forEach((w, i) => {
+    const question = direction === 'en2ja' ? w.en : w.ja;
+    html += `<div class="test-item">
+      <span class="word-num">${w.id})</span>
+      <div class="word-en">${question}</div>`;
+    if (isInteractive) {
+      html += `<input class="answer-input" data-idx="${i}" autocomplete="off" spellcheck="false">`;
+    } else {
+      html += `<div class="answer-line"></div><div class="answer-line-print" style="display:none;"></div>`;
+    }
+    html += `</div>`;
+  });
+
+  html += '</div>';
+  sheet.innerHTML = html;
+
+  // Action bar
+  const bar = document.getElementById('actionBar');
+  let btns = '<button class="btn btn-secondary" onclick="backToSettings()">設定に戻る</button>';
+  if (isInteractive) {
+    btns += '<button class="btn btn-primary" onclick="checkAnswers()">採点する</button>';
+  } else {
+    btns += '<button class="btn btn-primary" onclick="window.print()">印刷</button>';
+    btns += '<button class="btn btn-answer" onclick="showAnswers()">解答を表示</button>';
+  }
+  bar.innerHTML = btns;
+
+  document.getElementById('settingsScreen').style.display = 'none';
+  document.getElementById('testScreen').style.display = 'block';
+  document.getElementById('resultScreen').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function showAnswers() {
+  const items = document.querySelectorAll('.test-item');
+  items.forEach((item, i) => {
+    const w = testWords[i];
+    const answer = direction === 'en2ja' ? w.ja : w.en;
+    const line = item.querySelector('.answer-line');
+    if (line) {
+      line.style.display = 'none';
+    }
+    const existing = item.querySelector('.answer-text');
+    if (!existing) {
+      const div = document.createElement('div');
+      div.className = 'answer-text';
+      div.textContent = answer;
+      item.appendChild(div);
+    }
+  });
+}
+
+function checkAnswers() {
+  let correct = 0;
+  const inputs = document.querySelectorAll('.answer-input');
+
+  inputs.forEach((input, i) => {
+    const w = testWords[i];
+    const expected = direction === 'en2ja' ? w.ja : w.en;
+    const userAns = input.value.trim();
+
+    // Show correct answer
+    const div = document.createElement('div');
+    div.className = 'answer-text';
+
+    if (userAns === '') {
+      div.classList.add('answer-wrong');
+      div.textContent = `→ ${expected}`;
+    } else if (isAnswerCorrect(userAns, expected, direction)) {
+      div.classList.add('answer-correct');
+      div.textContent = '○ ' + expected;
+      correct++;
+      input.style.borderBottomColor = '#10b981';
+    } else {
+      div.classList.add('answer-wrong');
+      div.textContent = `✕ → ${expected}`;
+      input.style.borderBottomColor = '#ef4444';
+    }
+
+    input.disabled = true;
+    input.parentElement.appendChild(div);
+  });
+
+  // Show result
+  const resultDiv = document.getElementById('resultScreen');
+  const pct = Math.round(correct / testWords.length * 100);
+  resultDiv.innerHTML = `
+    <div class="quiz-result">
+      <h2>採点結果</h2>
+      <div class="score">${correct}/${testWords.length}</div>
+      <div class="detail">${pct}% 正解</div>
+      <button class="btn btn-secondary" onclick="backToSettings()" style="max-width:300px;margin:16px auto 0;">設定に戻る</button>
+      <button class="btn btn-primary" onclick="retryWrong()" style="max-width:300px;margin:10px auto 0;">間違えた問題を再テスト</button>
+    </div>
+  `;
+  resultDiv.style.display = 'block';
+  resultDiv.scrollIntoView({ behavior: 'smooth' });
+
+  // Update score
+  document.querySelector('.score-box').textContent = `${correct}/${testWords.length}`;
+}
+
+function isAnswerCorrect(userAns, expected, dir) {
+  if (dir === 'ja2en') {
+    return userAns.toLowerCase() === expected.toLowerCase();
+  }
+  // For en2ja, check if user's answer matches any part of the expected meaning
+  const normalized = s => s.replace(/[\s、，,。．.…]/g, '').replace(/を|に|と|が|の|は|で|も|へ|から|まで|より/g, '');
+  if (normalized(userAns) === normalized(expected)) return true;
+  // Check partial match: split expected by commas
+  const parts = expected.split(/[、，,]/);
+  return parts.some(p => normalized(userAns) === normalized(p.trim()));
+}
+
+function retryWrong() {
+  const inputs = document.querySelectorAll('.answer-input');
+  const wrong = [];
+  inputs.forEach((input, i) => {
+    const w = testWords[i];
+    const expected = direction === 'en2ja' ? w.ja : w.en;
+    const userAns = input.value.trim();
+    if (!isAnswerCorrect(userAns, expected, direction)) {
+      wrong.push(w);
+    }
+  });
+
+  if (wrong.length === 0) {
+    alert('全問正解です！');
+    return;
+  }
+
+  testWords = wrong;
+  const cols = document.querySelector('.test-grid').classList.contains('cols-3') ? 3 : 2;
+  const from = Math.min(...wrong.map(w => w.id));
+  const to = Math.max(...wrong.map(w => w.id));
+  isInteractive = true;
+  renderTest(cols, from, to);
+}
+
+function backToSettings() {
+  document.getElementById('settingsScreen').style.display = 'block';
+  document.getElementById('testScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+updateInfo();
+</script>
+</body>
+</html>
