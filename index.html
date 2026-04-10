@@ -356,7 +356,7 @@ function checkAnswers() {
     if (userAns === '') {
       div.classList.add('answer-wrong');
       div.textContent = `→ ${expected}`;
-    } else if (isAnswerCorrect(userAns, expected, direction)) {
+    } else if (isAnswerCorrect(userAns, expected, direction, w)) {
       div.classList.add('answer-correct');
       div.textContent = '○ ' + expected;
       correct++;
@@ -390,16 +390,98 @@ function checkAnswers() {
   document.querySelector('.score-box').textContent = `${correct}/${testWords.length}`;
 }
 
-function isAnswerCorrect(userAns, expected, dir) {
+// ===== 採点ロジック（案A+Bハイブリッド） =====
+
+// 正規化：助詞・記号・活用語尾を統一
+function normalize(s) {
+  return s
+    .replace(/[\s　、，,。．.…～〜・「」『』（）()＝=：:；;！!？?]/g, '')
+    .replace(/^(を|に|と|が|で|は|へ|の|も)+/g, '')
+    .replace(/(を|に|と|が|で|は|へ|の|も|から|まで|より|など|ば|て|た|だ)+$/g, '')
+    .replace(/(を|に|と|が|で|は|へ|の|も|から|まで|より|など|ば)/g, '')
+    .replace(/していく|してくる|しておく|している/g, 'する')
+    .replace(/させる|される|された|させた/g, 'する')
+    .replace(/った|んだ|いた|した/g, 'る')
+    .replace(/ない$/, '')
+    .replace(/こと$|もの$|ところ$/, '');
+}
+
+// 核心語を抽出（漢字・カタカナの連続部分）
+function extractCoreWords(s) {
+  const cores = s.match(/[\u4e00-\u9faf\u3400-\u4dbf]+|[\u30a0-\u30ff]+/g);
+  return cores ? cores.filter(c => c.length >= 2) : [];
+}
+
+// レーベンシュタイン距離
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m + 1}, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1]
+        ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+// 類似度 0〜1
+function similarity(a, b) {
+  if (!a || !b) return 0;
+  const dist = levenshtein(a, b);
+  return 1 - dist / Math.max(a.length, b.length);
+}
+
+function isAnswerCorrect(userAns, expected, dir, wordObj) {
+  const ans = userAns.trim();
+  if (!ans) return false;
+
+  // === 日本語→英語モード ===
   if (dir === 'ja2en') {
-    return userAns.toLowerCase() === expected.toLowerCase();
+    return ans.toLowerCase() === expected.toLowerCase();
   }
-  // For en2ja, check if user's answer matches any part of the expected meaning
-  const normalized = s => s.replace(/[\s、，,。．.…]/g, '').replace(/を|に|と|が|の|は|で|も|へ|から|まで|より/g, '');
-  if (normalized(userAns) === normalized(expected)) return true;
-  // Check partial match: split expected by commas
-  const parts = expected.split(/[、，,]/);
-  return parts.some(p => normalized(userAns) === normalized(p.trim()));
+
+  // === 英語→日本語モード ===
+  const normAns = normalize(ans);
+  const normExp = normalize(expected);
+
+  // Step 1: 正規化して完全一致
+  if (normAns === normExp) return true;
+
+  // Step 2: カンマ区切りの各意味と正規化一致
+  const parts = expected.split(/[、，,／/]/).map(p => p.trim()).filter(Boolean);
+  if (parts.some(p => normalize(p) === normAns)) return true;
+
+  // Step 3: alt（同義語リスト）に一致
+  if (wordObj && wordObj.alt) {
+    if (wordObj.alt.some(a => normalize(a) === normAns)) return true;
+  }
+
+  // Step 4: 核心語の一致 + 類似度
+  const ansCores = extractCoreWords(ans);
+  const expCores = extractCoreWords(expected);
+
+  // 4a: 全核心語のうち主要なものが含まれていれば正解
+  if (expCores.length > 0 && ansCores.length > 0) {
+    const matchCount = expCores.filter(ec =>
+      ansCores.some(ac => ac === ec || ac.includes(ec) || ec.includes(ac))
+    ).length;
+    // 核心語の半数以上が一致 & 少なくとも1つは2文字以上で一致
+    if (matchCount >= Math.ceil(expCores.length / 2) && matchCount >= 1) {
+      return true;
+    }
+  }
+
+  // 4b: 各パートとの類似度チェック（60%以上）
+  if (parts.some(p => similarity(normalize(p), normAns) >= 0.6)) return true;
+
+  // 4c: alt との類似度チェック
+  if (wordObj && wordObj.alt) {
+    if (wordObj.alt.some(a => similarity(normalize(a), normAns) >= 0.6)) return true;
+  }
+
+  return false;
 }
 
 function retryWrong() {
@@ -409,7 +491,7 @@ function retryWrong() {
     const w = testWords[i];
     const expected = direction === 'en2ja' ? w.ja : w.en;
     const userAns = input.value.trim();
-    if (!isAnswerCorrect(userAns, expected, direction)) {
+    if (!isAnswerCorrect(userAns, expected, direction, w)) {
       wrong.push(w);
     }
   });
