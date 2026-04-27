@@ -1,1 +1,0 @@
-const DATASET={"id":"j2","label":"英検 ２級","total":0,"words":[]};
