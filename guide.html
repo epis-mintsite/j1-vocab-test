@@ -223,6 +223,61 @@
     1051〜1600：でる度C
   </div>
 
+  <!-- ===== Section 5 ===== -->
+  <h2>5. 自分の単語帳を追加する</h2>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>単語ファイルを用意する（CSV または Excel）</strong>
+      <p>A列に問題文（英語など）、B列に解答（日本語など）を入力します。<br>
+      1行目はヘッダー行として自動スキップされます。</p>
+    </div>
+  </div>
+
+  <table class="option-table">
+    <tr><th>A列（問題文）</th><th>B列（解答）</th></tr>
+    <tr><td>abandon</td><td>を捨てる、を放棄する</td></tr>
+    <tr><td>accelerate</td><td>を加速する</td></tr>
+    <tr><td>…</td><td>…</td></tr>
+  </table>
+
+  <div class="tip">
+    <strong>対応ファイル形式：</strong>CSV (.csv) および Excel (.xlsx / .xls)<br>
+    Excelの場合は1枚目のシートのみ読み込まれます。<br>
+    文字コードは UTF-8 または Shift-JIS に対応しています。
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>「＋ 教材を追加」ボタンを押す</strong>
+      <p>教材選択ボタンの右端にある「＋ 教材を追加」をクリックします。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>教材名を入力してファイルをアップロードする</strong>
+      <p>教材名（例：システム英単語、TOEIC金フレ）を入力し、ファイルをドロップまたは選択します。<br>
+      読み込みが成功すると語数と先頭5語のプレビューが表示されます。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <strong>「追加する」ボタンを押す</strong>
+      <p>追加した教材はブラウザに保存され、次回アクセス時も選択できます。<br>
+      削除するには教材ボタンの右上の「✕」を押してください。</p>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>注意：</strong>データはブラウザ（localStorage）に保存されます。ブラウザのデータ消去・プライベートモードでは消える場合があります。大切なデータはファイルとして保管しておいてください。
+  </div>
+
   <div class="footer">
     <a href="index.html" class="back-link">テスト画面に戻る</a>
   </div>
