@@ -574,8 +574,15 @@ body {
 .card-scene {
   width: 100%; max-width: 480px;
   perspective: 1200px;
-  cursor: pointer; user-select: none;
+  user-select: none;
+  position: relative; /* needed for button overlay */
+}
+.card-tap-btn {
+  position: absolute; inset: 0; z-index: 10;
+  background: transparent; border: none; padding: 0; margin: 0;
+  cursor: pointer; border-radius: var(--r-large);
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .card-flip {
   width: 100%; min-height: 220px; position: relative;
@@ -897,19 +904,21 @@ body {
       <div class="card-scene" id="cardScene">
         <div class="card-flip" id="cardFlipEl">
           <!-- front -->
-          <div class="card-face front">
+          <div class="card-face front" style="pointer-events:none;">
             <span class="card-num-badge" id="cardFrontNum"></span>
             <span class="card-side-label" id="cardFrontLabel">問題</span>
             <div class="card-word" id="cardFrontWord"></div>
           </div>
           <!-- back -->
-          <div class="card-face back">
+          <div class="card-face back" style="pointer-events:none;">
             <span class="card-num-badge" id="cardBackNum"></span>
             <span class="card-side-label">解答</span>
             <div class="card-word" id="cardBackWord"></div>
             <div class="card-alt"  id="cardAlt"></div>
           </div>
         </div>
+        <!-- Tap overlay: <button> fires immediately on iOS Safari (unlike <div>) -->
+        <button type="button" class="card-tap-btn" id="cardTapBtn" aria-label="カードをめくる"></button>
       </div>
 
       <!-- hint -->
@@ -1438,25 +1447,27 @@ function startCardMode() {
   document.getElementById('cardScreen').style.display    = 'block';
   window.scrollTo(0, 0);
 
-  // Touch / swipe handling (attach once, guard with _cardSwipeLocked)
-  const scene = document.getElementById('cardScene');
-  scene.ontouchstart = e => {
+  // Touch / swipe / tap handling — on the <button> overlay for reliable iOS Safari response
+  const btn = document.getElementById('cardTapBtn');
+  btn.ontouchstart = e => {
     _cardTouchX = e.touches[0].clientX;
     _cardTouchY = e.touches[0].clientY;
     _cardSwipeLocked = false;
   };
-  scene.ontouchend = e => {
+  btn.ontouchend = e => {
     if (_cardSwipeLocked) return;
     const dx = e.changedTouches[0].clientX - _cardTouchX;
     const dy = e.changedTouches[0].clientY - _cardTouchY;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 48) {
       _cardSwipeLocked = true;
+      e.preventDefault();
       dx > 0 ? prevCard() : nextCard();
     } else if (Math.abs(dx) < 12 && Math.abs(dy) < 12) {
-      flipCard(); // treat as tap
+      e.preventDefault(); // prevent subsequent click (avoids double-flip)
+      flipCard();
     }
   };
-  scene.onclick = () => { if (!_cardSwipeLocked) flipCard(); };
+  btn.onclick = () => { if (!_cardSwipeLocked) flipCard(); }; // desktop fallback
 
   renderCard();
 }
