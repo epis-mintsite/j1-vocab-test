@@ -532,6 +532,44 @@ body {
 /* hide test/result by default */
 #testScreen   { display: none; }
 #resultScreen { display: none; }
+
+/* ── Topbar actions group ── */
+.topbar-actions { display: flex; align-items: center; gap: 4px; }
+.topbar-btn {
+  font-size: 14px; font-weight: 500; color: var(--gray-500);
+  text-decoration: none; padding: 5px 12px;
+  border-radius: var(--r-micro);
+  transition: background 0.15s, color 0.15s;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font); white-space: nowrap;
+}
+.topbar-btn:hover { background: var(--black-05); color: var(--black); }
+
+/* ── Log modal ── */
+.log-table-wrap {
+  border: var(--border); border-radius: var(--r-standard);
+  overflow: hidden; max-height: 320px; overflow-y: auto;
+}
+.log-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.log-tbl th {
+  background: var(--warm-white); padding: 7px 10px; text-align: left;
+  font-weight: 600; font-size: 11px; letter-spacing: 0.125px;
+  color: var(--gray-500); position: sticky; top: 0;
+  border-bottom: var(--border);
+}
+.log-tbl td { padding: 6px 10px; border-top: var(--border); vertical-align: middle; }
+.log-tbl tr:hover td { background: var(--warm-white); }
+.log-del-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; color: var(--gray-300); padding: 2px 5px;
+  border-radius: 3px; transition: background 0.1s, color 0.1s;
+}
+.log-del-btn:hover { background: #fef2f2; color: #ef4444; }
+.log-empty {
+  padding: 32px 20px; text-align: center;
+  font-size: 14px; color: var(--gray-300);
+}
+.log-student-wrap { margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -551,7 +589,10 @@ body {
       </svg>
       <span class="topbar-title">単語テスト</span>
     </a>
-    <a class="topbar-guide" href="guide.html" target="_blank">操作手順書</a>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="openLogModal()">📋 ログ</button>
+      <a class="topbar-btn" href="guide.html" target="_blank">操作手順書</a>
+    </div>
   </nav>
 
   <!-- Main card -->
@@ -719,6 +760,29 @@ body {
     <div class="modal-foot">
       <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
       <button class="btn btn-primary" id="btnConfirm" disabled onclick="confirmUpload()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Log Modal ===== -->
+<div class="modal-overlay" id="logModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <h2>📋 テスト作成ログ</h2>
+      <button onclick="closeLogModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field log-student-wrap">
+        <label>生徒名</label>
+        <input type="text" id="studentNameInput" placeholder="名前を入力してください（PDF に反映されます）" oninput="persistStudentName()">
+      </div>
+      <div id="logTableWrap" class="log-table-wrap">
+        <div class="log-empty">まだテストのログがありません</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="clearAllLogs()">全削除</button>
+      <button class="btn btn-primary"   onclick="exportLogPDF()">印刷 / PDF 出力</button>
     </div>
   </div>
 </div>
@@ -1024,7 +1088,20 @@ function generateTest() {
     n=Math.min(n,pool.length); shuffle(pool); pool=pool.slice(0,n);
   }
   if (sortMode==='random') shuffle(pool); else pool.sort((a,b)=>a.id-b.id);
-  testWords=pool; renderTest(cols,from,to);
+  testWords=pool;
+  saveLog({
+    timestamp: new Date().toISOString(),
+    dataset:   currentDS.label,
+    rangeFrom: from,
+    rangeTo:   to,
+    count:     pool.length,
+    countMode: countMode,
+    sortMode:  sortMode,
+    direction: direction,
+    mode:      isInteractive ? 'interactive' : 'print',
+    cols:      cols
+  });
+  renderTest(cols,from,to);
 }
 function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
 
@@ -1136,6 +1213,107 @@ function backToSettings(){
   document.getElementById('resultScreen').style.display='none';
   window.scrollTo(0,0);
 }
+
+// ── Test Creation Log ─────────────────────────────────────
+const LOG_KEY  = 'vocabTestLog_v1';
+const NAME_KEY = 'vocabTestStudent_v1';
+
+function getLogs()        { try { return JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); } catch { return []; } }
+function saveLogs(list)   { localStorage.setItem(LOG_KEY, JSON.stringify(list)); }
+function getStudentName() { return localStorage.getItem(NAME_KEY)||''; }
+function persistStudentName() { localStorage.setItem(NAME_KEY, document.getElementById('studentNameInput').value); }
+
+function saveLog(entry) { const logs=getLogs(); logs.push(entry); saveLogs(logs); }
+
+function openLogModal() {
+  document.getElementById('studentNameInput').value = getStudentName();
+  renderLogTable();
+  document.getElementById('logModal').classList.add('open');
+}
+function closeLogModal() { document.getElementById('logModal').classList.remove('open'); }
+document.getElementById('logModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('logModal')) closeLogModal();
+});
+
+function renderLogTable() {
+  const logs = getLogs();
+  const wrap = document.getElementById('logTableWrap');
+  if (logs.length === 0) {
+    wrap.innerHTML = '<div class="log-empty">まだテストのログがありません</div>';
+    return;
+  }
+  const rows = logs.map((e, i) => {
+    const dt   = new Date(e.timestamp).toLocaleString('ja-JP',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const dir  = e.direction==='en2ja' ? '英→日' : '日→英';
+    const mode = e.mode==='print'      ? '印刷'   : '画面';
+    const sort = e.sortMode==='random' ? '乱'     : '順';
+    return `<tr>
+      <td>${dt}</td><td>${esc(e.dataset)}</td>
+      <td>${e.rangeFrom}–${e.rangeTo}</td>
+      <td>${e.count}問</td>
+      <td style="white-space:nowrap;">${dir}/${mode}/${sort}</td>
+      <td><button class="log-del-btn" onclick="deleteOneLog(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `<table class="log-tbl">
+    <thead><tr><th>日時</th><th>教材</th><th>範囲</th><th>問題数</th><th>設定</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function deleteOneLog(idx) {
+  const logs = getLogs(); logs.splice(idx, 1); saveLogs(logs); renderLogTable();
+}
+
+function clearAllLogs() {
+  if (!confirm('全てのログを削除しますか？')) return;
+  saveLogs([]); renderLogTable();
+}
+
+function exportLogPDF() {
+  const name  = getStudentName();
+  const logs  = getLogs();
+  const today = new Date().toLocaleDateString('ja-JP');
+  const rows  = logs.map(e => {
+    const dt   = new Date(e.timestamp).toLocaleString('ja-JP');
+    const dir  = e.direction==='en2ja' ? '英語→日本語' : '日本語→英語';
+    const mode = e.mode==='print'      ? '印刷用'       : '画面で回答';
+    const sort = e.sortMode==='random' ? 'ランダム'      : '順番通り';
+    return `<tr>
+      <td>${dt}</td><td>${esc(e.dataset)}</td>
+      <td>${e.rangeFrom}–${e.rangeTo}</td><td>${e.count}問</td>
+      <td>${dir} / ${mode} / ${sort}</td>
+    </tr>`;
+  }).join('');
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html lang="ja"><head>
+    <meta charset="UTF-8"><title>テスト作成ログ</title>
+    <style>
+      body  { font-family:'Hiragino Kaku Gothic Pro','Noto Sans JP',sans-serif;
+              padding:12mm 16mm; color:#1a1a1a; font-size:13px; }
+      h1    { font-size:17px; border-bottom:2px solid #0075de;
+              padding-bottom:8px; margin-bottom:6px; }
+      .meta { font-size:11px; color:#777; margin-bottom:18px; }
+      table { width:100%; border-collapse:collapse; }
+      th    { background:#f2f2f2; padding:6px 8px; text-align:left;
+              border:1px solid #d0d0d0; font-size:11px; }
+      td    { padding:5px 8px; border:1px solid #d0d0d0; }
+      tr:nth-child(even) td { background:#fafafa; }
+      @media print { @page { margin:12mm; } }
+    </style>
+  </head><body>
+    <h1>📋 テスト作成ログ</h1>
+    <div class="meta">${name ? '生徒名：<strong>'+esc(name)+'</strong>&emsp;' : ''}出力日：${today}&emsp;全 ${logs.length} 件</div>
+    ${logs.length > 0
+      ? `<table><thead><tr><th>日時</th><th>教材</th><th>範囲</th><th>問題数</th><th>設定</th></tr></thead><tbody>${rows}</tbody></table>`
+      : '<p style="color:#999;">ログはありません。</p>'
+    }
+  </body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 400);
+}
+
 initSpeech();
 </script>
 </body>
