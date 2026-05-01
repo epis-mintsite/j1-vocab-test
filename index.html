@@ -529,9 +529,155 @@ body {
   .result-score { font-size: 48px; }
 }
 
-/* hide test/result by default */
+/* hide test/result/card by default */
 #testScreen   { display: none; }
 #resultScreen { display: none; }
+#cardScreen   { display: none; }
+
+/* ── Card Mode ── */
+.card-screen {
+  min-height: 100vh; background: var(--warm-white);
+  display: flex; flex-direction: column;
+}
+.card-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; background: var(--white); border-bottom: var(--border);
+  gap: 8px;
+}
+.card-back-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: var(--gray-500);
+  padding: 6px 10px; border-radius: var(--r-micro); font-family: var(--font);
+  transition: background 0.15s, color 0.15s; white-space: nowrap;
+}
+.card-back-btn:hover { background: var(--black-05); color: var(--black); }
+.card-counter {
+  font-size: 15px; font-weight: 700; color: var(--black); white-space: nowrap;
+}
+.card-ds-label {
+  font-size: 12px; color: var(--gray-300); font-weight: 400;
+  text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.card-progress-bar { height: 3px; background: var(--black-05); flex-shrink: 0; }
+.card-progress-fill {
+  height: 100%; background: var(--notion-blue); transition: width 0.35s ease;
+}
+
+/* Stage */
+.card-stage {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 28px 16px 20px; gap: 20px;
+}
+
+/* 3-D flip */
+.card-scene {
+  width: 100%; max-width: 480px;
+  perspective: 1200px;
+  cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-flip {
+  width: 100%; min-height: 220px; position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-flip.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute; inset: 0; min-height: 220px;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: var(--r-large);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 28px 24px; gap: 10px;
+  border: var(--border); box-shadow: var(--shadow-deep);
+}
+.card-face.front { background: var(--white); }
+.card-face.back  {
+  background: #f0fdf4; border-color: rgba(26,174,57,0.25);
+  transform: rotateY(180deg);
+}
+
+.card-num-badge {
+  position: absolute; top: 12px; left: 16px;
+  font-size: 11px; color: var(--gray-300); font-weight: 400;
+}
+.card-side-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.125px;
+  text-transform: uppercase; color: var(--gray-300);
+}
+.card-face.back .card-side-label { color: #6dbc87; }
+
+.card-word {
+  font-size: clamp(22px, 5.5vw, 34px);
+  font-weight: 700; letter-spacing: -0.5px;
+  color: var(--black); text-align: center; line-height: 1.2;
+}
+.card-face.back .card-word { color: #166534; }
+.card-alt {
+  font-size: 13px; color: #4a8c5c; font-weight: 400;
+  text-align: center; line-height: 1.5;
+}
+
+/* Tap hint */
+.card-hint {
+  font-size: 13px; color: var(--gray-300);
+  display: flex; align-items: center; gap: 5px;
+  animation: hint-pulse 2s ease-in-out infinite;
+  min-height: 22px;
+}
+@keyframes hint-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+/* ○ / ✕ action buttons */
+.card-actions {
+  display: flex; gap: 12px;
+  width: 100%; max-width: 480px;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+}
+.card-actions.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.card-btn-unknown {
+  flex: 1; padding: 13px 10px;
+  background: #fef2f2; border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--r-card); cursor: pointer;
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  color: #dc2626; text-align: center;
+  transition: background 0.12s, transform 0.1s;
+}
+.card-btn-unknown:active { transform: scale(0.97); background: #fee2e2; }
+.card-btn-know {
+  flex: 1; padding: 13px 10px;
+  background: #f0fdf4; border: 1px solid rgba(26,174,57,0.3);
+  border-radius: var(--r-card); cursor: pointer;
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  color: #166534; text-align: center;
+  transition: background 0.12s, transform 0.1s;
+}
+.card-btn-know:active { transform: scale(0.97); background: #dcfce7; }
+
+/* ← → navigation */
+.card-nav { display: flex; gap: 8px; width: 100%; max-width: 480px; }
+.card-nav-btn {
+  flex: 1; padding: 9px 12px;
+  background: var(--white); border: var(--border);
+  border-radius: var(--r-standard); cursor: pointer;
+  font-family: var(--font); font-size: 14px; font-weight: 500;
+  color: var(--gray-500); text-align: center;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.card-nav-btn:hover:not(:disabled) { border-color: rgba(0,0,0,0.2); color: var(--black); }
+.card-nav-btn:disabled { opacity: 0.28; cursor: default; }
+
+/* Result stats row */
+.card-stats {
+  display: flex; gap: 20px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 24px; font-size: 14px;
+}
+.card-stat-know    { color: #166534; font-weight: 700; }
+.card-stat-unknown { color: #dc2626; font-weight: 700; }
+.card-stat-skip    { color: var(--gray-300); font-weight: 600; }
 
 /* ── Topbar actions group ── */
 .topbar-actions { display: flex; align-items: center; gap: 4px; }
@@ -700,6 +846,10 @@ body {
             <input type="radio" id="mLive" name="mode" value="interactive">
             <label for="mLive">画面で回答</label>
           </span>
+          <span class="radio-pill">
+            <input type="radio" id="mCard" name="mode" value="card">
+            <label for="mCard">🃏 単語カード</label>
+          </span>
         </div>
       </div>
 
@@ -725,6 +875,60 @@ body {
 <!-- ===== Result screen ===== -->
 <div id="resultScreen">
   <div class="result-page" id="resultInner"></div>
+</div>
+
+<!-- ===== Card screen ===== -->
+<div id="cardScreen">
+  <div class="card-screen">
+    <!-- top bar -->
+    <div class="card-topbar">
+      <button class="card-back-btn" onclick="backToSettings()">← 設定に戻る</button>
+      <span class="card-counter" id="cardCounter">1 / —</span>
+      <span class="card-ds-label" id="cardDsLabel"></span>
+    </div>
+    <div class="card-progress-bar">
+      <div class="card-progress-fill" id="cardProgressFill" style="width:0%"></div>
+    </div>
+
+    <!-- stage -->
+    <div class="card-stage">
+
+      <!-- 3-D card -->
+      <div class="card-scene" id="cardScene">
+        <div class="card-flip" id="cardFlipEl">
+          <!-- front -->
+          <div class="card-face front">
+            <span class="card-num-badge" id="cardFrontNum"></span>
+            <span class="card-side-label" id="cardFrontLabel">問題</span>
+            <div class="card-word" id="cardFrontWord"></div>
+          </div>
+          <!-- back -->
+          <div class="card-face back">
+            <span class="card-num-badge" id="cardBackNum"></span>
+            <span class="card-side-label">解答</span>
+            <div class="card-word" id="cardBackWord"></div>
+            <div class="card-alt"  id="cardAlt"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- hint -->
+      <div class="card-hint" id="cardHint">👆 タップしてめくる</div>
+
+      <!-- ○ / ✕ (visible after flip) -->
+      <div class="card-actions" id="cardActions">
+        <button class="card-btn-unknown" onclick="markCard('unknown')">✕ 知らなかった</button>
+        <button class="card-btn-know"    onclick="markCard('know')">○ 知ってた</button>
+      </div>
+
+      <!-- navigation -->
+      <div class="card-nav">
+        <button class="card-nav-btn" id="cardPrevBtn" onclick="prevCard()" disabled>← 前</button>
+        <button class="card-nav-btn" id="cardNextBtn" onclick="nextCard()">次 →</button>
+      </div>
+
+    </div><!-- /card-stage -->
+  </div>
 </div>
 
 <!-- ===== Upload Modal ===== -->
@@ -1076,8 +1280,10 @@ function generateTest() {
   const countMode=document.querySelector('input[name=countMode]:checked').value;
   const sortMode =document.querySelector('input[name=sortMode]:checked').value;
   const cols     =+document.querySelector('input[name=cols]:checked').value;
+  const modeVal  =document.querySelector('input[name=mode]:checked').value;
   direction      =document.querySelector('input[name=direction]:checked').value;
-  isInteractive  =document.querySelector('input[name=mode]:checked').value==='interactive';
+  isInteractive  =modeVal==='interactive';
+  const isCard   =modeVal==='card';
   if (from<1||to>currentDS.total||from>to) { alert(`出題範囲：1〜${currentDS.total} で指定してください`); return; }
   let pool=currentDS.words.filter(w=>w.id>=from&&w.id<=to);
   let n;
@@ -1098,9 +1304,10 @@ function generateTest() {
     countMode: countMode,
     sortMode:  sortMode,
     direction: direction,
-    mode:      isInteractive ? 'interactive' : 'print',
+    mode:      modeVal,
     cols:      cols
   });
+  if (isCard) { startCardMode(); return; }
   renderTest(cols,from,to);
 }
 function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
@@ -1211,7 +1418,159 @@ function backToSettings(){
   document.getElementById('settingsScreen').style.display='block';
   document.getElementById('testScreen').style.display='none';
   document.getElementById('resultScreen').style.display='none';
+  document.getElementById('cardScreen').style.display='none';
   window.scrollTo(0,0);
+}
+
+// ── Card Mode ─────────────────────────────────────────────
+let cardIndex = 0, cardFlipped = false, cardResults = [];
+let _cardTouchX = 0, _cardTouchY = 0, _cardSwipeLocked = false;
+
+function startCardMode() {
+  cardIndex   = 0;
+  cardFlipped = false;
+  cardResults = new Array(testWords.length).fill(null);
+
+  document.getElementById('cardDsLabel').textContent = currentDS.label;
+  document.getElementById('settingsScreen').style.display = 'none';
+  document.getElementById('testScreen').style.display    = 'none';
+  document.getElementById('resultScreen').style.display  = 'none';
+  document.getElementById('cardScreen').style.display    = 'block';
+  window.scrollTo(0, 0);
+
+  // Touch / swipe handling (attach once, guard with _cardSwipeLocked)
+  const scene = document.getElementById('cardScene');
+  scene.ontouchstart = e => {
+    _cardTouchX = e.touches[0].clientX;
+    _cardTouchY = e.touches[0].clientY;
+    _cardSwipeLocked = false;
+  };
+  scene.ontouchend = e => {
+    if (_cardSwipeLocked) return;
+    const dx = e.changedTouches[0].clientX - _cardTouchX;
+    const dy = e.changedTouches[0].clientY - _cardTouchY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 48) {
+      _cardSwipeLocked = true;
+      dx > 0 ? prevCard() : nextCard();
+    } else if (Math.abs(dx) < 12 && Math.abs(dy) < 12) {
+      flipCard(); // treat as tap
+    }
+  };
+  scene.onclick = () => { if (!_cardSwipeLocked) flipCard(); };
+
+  renderCard();
+}
+
+function renderCard() {
+  const w     = testWords[cardIndex];
+  const q     = direction === 'en2ja' ? w.en : w.ja;
+  const ans   = direction === 'en2ja' ? w.ja : w.en;
+  const total = testWords.length;
+
+  // Reset flip
+  cardFlipped = false;
+  document.getElementById('cardFlipEl').classList.remove('flipped');
+  document.getElementById('cardActions').classList.remove('visible');
+  document.getElementById('cardHint').style.visibility = 'visible';
+
+  // Populate front
+  document.getElementById('cardFrontNum').textContent   = '#' + w.id;
+  document.getElementById('cardFrontLabel').textContent = direction === 'en2ja' ? '英語' : '日本語';
+  document.getElementById('cardFrontWord').textContent  = q;
+
+  // Populate back
+  document.getElementById('cardBackNum').textContent  = '#' + w.id;
+  document.getElementById('cardBackWord').textContent = ans;
+  const altEl = document.getElementById('cardAlt');
+  if (direction === 'en2ja' && w.alt && w.alt.length > 0) {
+    altEl.textContent    = '別解：' + w.alt.slice(0, 3).join(' / ');
+    altEl.style.display  = '';
+  } else {
+    altEl.style.display = 'none';
+  }
+
+  // Progress
+  document.getElementById('cardCounter').textContent           = `${cardIndex + 1} / ${total}`;
+  document.getElementById('cardProgressFill').style.width      = `${(cardIndex / total) * 100}%`;
+  document.getElementById('cardPrevBtn').disabled              = cardIndex === 0;
+  document.getElementById('cardNextBtn').textContent           = cardIndex === total - 1 ? '結果を見る →' : '次 →';
+
+  // Already-marked indicator
+  const res = cardResults[cardIndex];
+  const flip = document.getElementById('cardFlipEl');
+  flip.style.outline = res === 'know' ? '2px solid #1aae39'
+                     : res === 'unknown' ? '2px solid #ef4444' : 'none';
+  flip.style.borderRadius = '16px';
+}
+
+function flipCard() {
+  cardFlipped = !cardFlipped;
+  document.getElementById('cardFlipEl').classList.toggle('flipped', cardFlipped);
+  if (cardFlipped) {
+    document.getElementById('cardActions').classList.add('visible');
+    document.getElementById('cardHint').style.visibility = 'hidden';
+  } else {
+    document.getElementById('cardActions').classList.remove('visible');
+    document.getElementById('cardHint').style.visibility = 'visible';
+  }
+}
+
+function markCard(result) {
+  cardResults[cardIndex] = result;
+  // brief visual feedback, then advance
+  setTimeout(() => {
+    if (cardIndex < testWords.length - 1) { cardIndex++; renderCard(); }
+    else showCardResult();
+  }, 150);
+}
+
+function prevCard() {
+  if (cardIndex > 0) { cardIndex--; renderCard(); }
+}
+
+function nextCard() {
+  if (cardIndex < testWords.length - 1) { cardIndex++; renderCard(); }
+  else showCardResult();
+}
+
+function showCardResult() {
+  const total   = testWords.length;
+  const known   = cardResults.filter(r => r === 'know').length;
+  const unknown = cardResults.filter(r => r === 'unknown').length;
+  const skipped = cardResults.filter(r => r === null).length;
+  const pct     = total > 0 ? Math.round(known / total * 100) : 0;
+
+  document.getElementById('cardProgressFill').style.width = '100%';
+
+  document.getElementById('resultInner').innerHTML = `
+    <div class="result-card">
+      <div class="result-title">カード学習 完了 🎉</div>
+      <div class="result-score">${known}/${total}</div>
+      <div class="result-pct">${pct}% 知ってた</div>
+      <div class="card-stats">
+        <span class="card-stat-know">○ 知ってた：${known}語</span>
+        <span class="card-stat-unknown">✕ 知らなかった：${unknown}語</span>
+        ${skipped > 0 ? `<span class="card-stat-skip">－ 未回答：${skipped}語</span>` : ''}
+      </div>
+      <div class="result-actions">
+        ${unknown + skipped > 0
+          ? `<button class="btn btn-primary btn-full" onclick="retryCards()">✕ の単語を再学習</button>`
+          : ''}
+        <button class="btn btn-secondary btn-full" onclick="startCardMode()">最初からやり直す</button>
+        <button class="btn btn-ghost btn-full" onclick="backToSettings()">設定に戻る</button>
+      </div>
+    </div>`;
+
+  document.getElementById('cardScreen').style.display   = 'none';
+  document.getElementById('resultScreen').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function retryCards() {
+  const targets = testWords.filter((_, i) => cardResults[i] !== 'know');
+  if (targets.length === 0) { alert('全て「知ってた」語です！'); return; }
+  testWords = targets;
+  startCardMode();
 }
 
 // ── Test Creation Log ─────────────────────────────────────
@@ -1245,7 +1604,7 @@ function renderLogTable() {
   const rows = logs.map((e, i) => {
     const dt   = new Date(e.timestamp).toLocaleString('ja-JP',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
     const dir  = e.direction==='en2ja' ? '英→日' : '日→英';
-    const mode = e.mode==='print'      ? '印刷'   : '画面';
+    const mode = e.mode==='print' ? '印刷' : e.mode==='card' ? 'カード' : '画面';
     const sort = e.sortMode==='random' ? '乱'     : '順';
     return `<tr>
       <td>${dt}</td><td>${esc(e.dataset)}</td>
@@ -1277,7 +1636,7 @@ function exportLogPDF() {
   const rows  = logs.map(e => {
     const dt   = new Date(e.timestamp).toLocaleString('ja-JP');
     const dir  = e.direction==='en2ja' ? '英語→日本語' : '日本語→英語';
-    const mode = e.mode==='print'      ? '印刷用'       : '画面で回答';
+    const mode = e.mode==='print' ? '印刷用' : e.mode==='card' ? 'カード学習' : '画面で回答';
     const sort = e.sortMode==='random' ? 'ランダム'      : '順番通り';
     return `<tr>
       <td>${dt}</td><td>${esc(e.dataset)}</td>
