@@ -1004,7 +1004,13 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // ── Dataset management ──────────────────────────────────
-const BUILTIN = [{ id:'j1', label:'英検 準１級', file:'words_j1.js' }];
+const BUILTIN = [
+  { id:'j1',        label:'英検 準１級', file:'words_j1.js'        },
+  { id:'grit2500',  label:'GRIT2500',   file:'words_grit2500.js'  },
+  { id:'eiken2',    label:'英検 ２級',   file:'words_eiken2.js'    },
+  { id:'eiken_pre2',label:'英検 準２級', file:'words_eiken_pre2.js'},
+  { id:'eiken3',    label:'英検 ３級',   file:'words_eiken3.js'    },
+];
 const STORAGE_KEY = 'customDatasets_v1';
 let currentDS = null, loadedCache = {}, parsedWords = [];
 
