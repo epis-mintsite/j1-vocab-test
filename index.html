@@ -1092,11 +1092,25 @@ function applyDS(ds) {
   buildGrid(); updateInfo();
 }
 
+// ビルトイン教材をバックグラウンドで先読み（applyせず語数表示だけ更新）
+function prefetchDS(id) {
+  if (loadedCache[id]) return;
+  const ds = BUILTIN.find(d => d.id === id);
+  if (!ds) return;
+  const sc = document.createElement('script');
+  sc.src = ds.file + '?v=2';
+  sc.onload = () => { loadedCache[id] = window.DATASET; delete window.DATASET; buildGrid(); };
+  sc.onerror = () => { loadedCache[id] = { id, label:ds.label, total:0, words:[] }; buildGrid(); };
+  document.head.appendChild(sc);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
-  // localStorageのカスタム教材をメモリキャッシュに事前ロード
+  // カスタム教材をメモリキャッシュに事前ロード
   getCustoms().forEach(ds => { loadedCache[ds.id] = ds; });
   buildGrid();
   selectDS('j1');
+  // j1以外のビルトイン教材をバックグラウンドで先読み
+  BUILTIN.filter(d => d.id !== 'j1').forEach(d => prefetchDS(d.id));
 });
 
 // ── Voice ───────────────────────────────────────────────
