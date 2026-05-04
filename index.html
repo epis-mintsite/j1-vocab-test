@@ -1086,7 +1086,12 @@ function applyDS(ds) {
   buildGrid(); updateInfo();
 }
 
-window.addEventListener('DOMContentLoaded', () => { buildGrid(); selectDS('j1'); });
+window.addEventListener('DOMContentLoaded', () => {
+  // localStorageのカスタム教材をメモリキャッシュに事前ロード
+  getCustoms().forEach(ds => { loadedCache[ds.id] = ds; });
+  buildGrid();
+  selectDS('j1');
+});
 
 // ── Voice ───────────────────────────────────────────────
 let recog = null, listening = false;
