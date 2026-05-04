@@ -1105,8 +1105,13 @@ function prefetchDS(id) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // ビルトイン教材と同名のカスタム教材を自動削除（重複防止）
+  const builtinLabels = new Set(BUILTIN.map(d => d.label));
+  const allCustoms = getCustoms();
+  const cleaned = allCustoms.filter(d => !builtinLabels.has(d.label));
+  if (cleaned.length !== allCustoms.length) saveCustoms(cleaned);
   // カスタム教材をメモリキャッシュに事前ロード
-  getCustoms().forEach(ds => { loadedCache[ds.id] = ds; });
+  cleaned.forEach(ds => { loadedCache[ds.id] = ds; });
   buildGrid();
   selectDS('j1');
   // j1以外のビルトイン教材をバックグラウンドで先読み
