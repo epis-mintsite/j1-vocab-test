@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>単語テスト</title>
+<title>英単語テスト</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -740,7 +740,7 @@ body {
         <path d="M7 8h10a3 3 0 010 6H7V8z" fill="white" opacity="0.9"/>
         <path d="M7 14h11a3 3 0 010 6H7v-6z" fill="white" opacity="0.6"/>
       </svg>
-      <span class="topbar-title">単語テスト</span>
+      <span class="topbar-title">英単語テスト</span>
     </a>
     <div class="topbar-actions">
       <button class="topbar-btn" onclick="openLogModal()">📋 ログ</button>
@@ -750,7 +750,7 @@ body {
 
   <!-- Main card -->
   <div class="card">
-    <h1 class="page-title" id="appTitle">でる度単語テスト</h1>
+    <h1 class="page-title" id="appTitle">英単語テスト</h1>
     <p class="page-subtitle" id="appSubtitle">教材を選んでテストを生成してください</p>
 
     <!-- ① Dataset selector -->
@@ -867,6 +867,12 @@ body {
 
     </div><!-- /settingsForm -->
   </div><!-- /card -->
+
+  <p style="margin-top:20px;font-size:11px;color:var(--gray-300);text-align:center;line-height:1.6;max-width:680px;">
+    英検®は、公益財団法人日本英語検定協会の登録商標です。<br>
+    このアプリは同協会の承認・推奨を受けたものではありません。
+  </p>
+
 </div><!-- /page -->
 </div><!-- /settingsScreen -->
 
@@ -1005,11 +1011,11 @@ body {
 <script>
 // ── Dataset management ──────────────────────────────────
 const BUILTIN = [
-  { id:'j1',        label:'英検 準１級', file:'words_j1.js'        },
-  { id:'grit2500',  label:'GRIT2500',   file:'words_grit2500.js'  },
-  { id:'eiken2',    label:'英検 ２級',   file:'words_eiken2.js'    },
-  { id:'eiken_pre2',label:'英検 準２級', file:'words_eiken_pre2.js'},
-  { id:'eiken3',    label:'英検 ３級',   file:'words_eiken3.js'    },
+  { id:'j1',        label:'英検® 準１級', file:'words_j1.js'        },
+  { id:'grit2500',  label:'GRIT2500',    file:'words_grit2500.js'  },
+  { id:'eiken2',    label:'英検® ２級',   file:'words_eiken2.js'    },
+  { id:'eiken_pre2',label:'英検® 準２級', file:'words_eiken_pre2.js'},
+  { id:'eiken3',    label:'英検® ３級',   file:'words_eiken3.js'    },
 ];
 const STORAGE_KEY = 'customDatasets_v1';
 let currentDS = null, loadedCache = {}, parsedWords = [];
@@ -1370,7 +1376,7 @@ function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.rand
 
 function renderTest(cols,from,to) {
   const today=new Date().toLocaleDateString('ja-JP');
-  let html=`<div class="test-head"><h2>単語テスト　${esc(currentDS.label)}</h2><span class="score-display" id="scoreDisplay">&nbsp;&nbsp;/${testWords.length}</span></div>
+  let html=`<div class="test-head"><h2>英単語テスト　${esc(currentDS.label)}</h2><span class="score-display" id="scoreDisplay">&nbsp;&nbsp;/${testWords.length}</span></div>
     <div class="test-meta"><span class="test-meta-date">Date: ${today}</span><span class="test-meta-range">出題範囲 ${from} — ${to}</span></div>
     <div class="test-grid cols-${cols}">`;
   testWords.forEach((w,i)=>{
