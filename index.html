@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>英単語テスト</title>
+<title>レベル別英単語テスト</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -740,7 +740,7 @@ body {
         <path d="M7 8h10a3 3 0 010 6H7V8z" fill="white" opacity="0.9"/>
         <path d="M7 14h11a3 3 0 010 6H7v-6z" fill="white" opacity="0.6"/>
       </svg>
-      <span class="topbar-title">英単語テスト</span>
+      <span class="topbar-title">レベル別英単語テスト</span>
     </a>
     <div class="topbar-actions">
       <button class="topbar-btn" onclick="openLogModal()">📋 ログ</button>
@@ -750,7 +750,7 @@ body {
 
   <!-- Main card -->
   <div class="card">
-    <h1 class="page-title" id="appTitle">英単語テスト</h1>
+    <h1 class="page-title" id="appTitle">レベル別英単語テスト</h1>
     <p class="page-subtitle" id="appSubtitle">教材を選んでテストを生成してください</p>
 
     <!-- ① Dataset selector -->
@@ -1376,7 +1376,7 @@ function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.rand
 
 function renderTest(cols,from,to) {
   const today=new Date().toLocaleDateString('ja-JP');
-  let html=`<div class="test-head"><h2>英単語テスト　${esc(currentDS.label)}</h2><span class="score-display" id="scoreDisplay">&nbsp;&nbsp;/${testWords.length}</span></div>
+  let html=`<div class="test-head"><h2>レベル別英単語テスト　${esc(currentDS.label)}</h2><span class="score-display" id="scoreDisplay">&nbsp;&nbsp;/${testWords.length}</span></div>
     <div class="test-meta"><span class="test-meta-date">Date: ${today}</span><span class="test-meta-range">出題範囲 ${from} — ${to}</span></div>
     <div class="test-grid cols-${cols}">`;
   testWords.forEach((w,i)=>{
