@@ -313,49 +313,6 @@ body {
   margin-top: 28px; display: flex; flex-direction: column; gap: 10px;
 }
 
-/* ── Voice button ── */
-.voice-btn {
-  width: 100%; display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; background: var(--white);
-  border: var(--border); border-radius: var(--r-card);
-  font-family: var(--font); font-size: 14px; font-weight: 500;
-  color: var(--gray-500); cursor: pointer;
-  transition: all 0.15s;
-}
-.voice-btn:hover { border-color: rgba(0,0,0,0.2); color: var(--black); box-shadow: var(--shadow-card); }
-.voice-btn.listening {
-  border-color: #ef4444; background: #fef2f2; color: #ef4444;
-  animation: pulse 1.2s ease-in-out infinite;
-}
-.voice-btn.unsupported { opacity: 0.4; cursor: not-allowed; }
-.voice-btn .mic-icon { font-size: 17px; flex-shrink: 0; }
-.voice-btn .mic-hint { font-size: 12px; color: var(--gray-300); margin-left: auto; }
-.voice-btn.listening .mic-hint { color: #fca5a5; }
-@keyframes pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.2); }
-  50%      { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
-}
-
-/* Voice preview */
-.voice-preview {
-  display: none;
-  background: #f0fdf4;
-  border: 1px solid rgba(22,163,74,0.3);
-  border-radius: var(--r-card);
-  padding: 14px 16px;
-  font-size: 14px;
-}
-.voice-heard {
-  font-size: 12px; color: var(--gray-500); margin-bottom: 10px;
-}
-.voice-heard em { font-style: normal; color: var(--black); font-weight: 500; }
-.voice-table { width: 100%; border-collapse: collapse; }
-.voice-table td { padding: 2px 4px; font-size: 13px; }
-.voice-table td:first-child { color: var(--gray-500); width: 110px; font-weight: 500; }
-.voice-table td:last-child  { color: #166534; font-weight: 600; }
-.voice-actions { display: flex; gap: 8px; margin-top: 12px; }
-.voice-actions .btn { flex: 1; padding: 7px 12px; font-size: 13px; }
-
 /* ── Upload Modal ── */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -760,16 +717,6 @@ body {
 
     <hr class="divider">
 
-    <!-- ② Voice input -->
-    <button class="voice-btn" id="btnMic" onclick="toggleVoice()">
-      <span class="mic-icon">🎤</span>
-      <span id="micLabel">音声で設定する</span>
-      <span class="mic-hint" id="micHint">例：「1番から100番、40問、ランダム、画面で」</span>
-    </button>
-    <div class="voice-preview" id="voicePreview"></div>
-
-    <hr class="divider">
-
     <!-- Settings form -->
     <div id="settingsForm">
 
@@ -1123,101 +1070,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // j1以外のビルトイン教材をバックグラウンドで先読み
   BUILTIN.filter(d => d.id !== 'j1').forEach(d => prefetchDS(d.id));
 });
-
-// ── Voice ───────────────────────────────────────────────
-let recog = null, listening = false;
-function initSpeech() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    document.getElementById('btnMic').classList.add('unsupported');
-    document.getElementById('micLabel').textContent = '音声入力は非対応です';
-    document.getElementById('micHint').textContent  = 'Chrome / Edge を推奨します';
-    return;
-  }
-  recog = new SR(); recog.lang = 'ja-JP'; recog.interimResults = false; recog.maxAlternatives = 3;
-  recog.onresult = e => { stopListen(); showVoicePreview(e.results[0][0].transcript, parseVoice(e.results[0][0].transcript)); };
-  recog.onerror  = e => { stopListen(); if (e.error==='no-speech') showVoiceErr('音声が認識できませんでした。'); if (e.error==='not-allowed') showVoiceErr('マイクのアクセスが拒否されています。'); };
-  recog.onend    = () => stopListen();
-}
-function toggleVoice() { if (document.getElementById('btnMic').classList.contains('unsupported')) return; if (!recog) initSpeech(); listening ? stopListen() : startListen(); }
-function startListen() {
-  const btn = document.getElementById('btnMic');
-  btn.classList.add('listening');
-  document.getElementById('micLabel').textContent = '聞いています…';
-  document.getElementById('micHint').textContent  = 'もう一度押すと停止';
-  document.getElementById('voicePreview').style.display = 'none';
-  listening = true; try { recog.start(); } catch(_){}
-}
-function stopListen() {
-  listening = false;
-  const btn = document.getElementById('btnMic');
-  btn.classList.remove('listening');
-  document.getElementById('micLabel').textContent = '音声で設定する';
-  document.getElementById('micHint').textContent  = '例：「1番から100番、40問、ランダム、画面で」';
-  try { recog.stop(); } catch(_){}
-}
-function parseVoice(t) {
-  const r = {};
-  const m = t.match(/(\d+)\s*(?:番|問目|語目)?(?:から|〜|～)\s*(\d+)/);
-  if (m) { r.rangeFrom=+m[1]; r.rangeTo=+m[2]; }
-  const c = t.match(/(\d+)\s*(?:問|語|個)/);
-  if (c) { r.wordCount=+c[1]; r.countMode='random'; }
-  if (/全[部て]|すべて|全問/.test(t)) { r.countMode='all'; delete r.wordCount; }
-  if (/ランダム|バラバラ|シャッフル/.test(t)) r.sortMode='random';
-  if (/順番通り|順番に|そのまま/.test(t)) r.sortMode='sequential';
-  const col = t.match(/([2３3二三])\s*列/);
-  if (col) r.cols = /[3３三]/.test(col[1]) ? 3 : 2;
-  if (/日本語.*英語|日英/.test(t))  r.direction='ja2en';
-  if (/英語.*日本語|英和/.test(t))  r.direction='en2ja';
-  if (/印刷|プリント|紙/.test(t))   r.mode='print';
-  if (/画面|入力|インタラクティブ/.test(t)) r.mode='interactive';
-  if (/作成|始め|スタート|テスト/.test(t)) r.trigger=true;
-  return r;
-}
-function showVoicePreview(heard, p) {
-  const d = document.getElementById('voicePreview');
-  if (Object.keys(p).filter(k=>k!=='trigger').length === 0) {
-    d.style.display='block';
-    d.innerHTML=`<div class="voice-heard">認識：<em>「${heard}」</em></div><div style="color:#dc2626;font-size:13px;">設定を読み取れませんでした。もう一度お試しください。</div><div class="voice-actions"><button class="btn btn-secondary" onclick="toggleVoice()">🎤 やり直す</button></div>`;
-    return;
-  }
-  const from=p.rangeFrom||+document.getElementById('rangeFrom').value;
-  const to  =p.rangeTo  ||+document.getElementById('rangeTo').value;
-  let rows='';
-  if (p.rangeFrom||p.rangeTo) rows+=`<tr><td>出題範囲</td><td>${from} — ${to}</td></tr>`;
-  if (p.countMode==='all')  rows+=`<tr><td>出題数</td><td>全て（${Math.max(0,to-from+1)}語）</td></tr>`;
-  else if (p.wordCount)     rows+=`<tr><td>出題数</td><td>ランダム ${p.wordCount}語</td></tr>`;
-  if (p.sortMode)    rows+=`<tr><td>出題順</td><td>${p.sortMode==='random'?'ランダム':'順番通り'}</td></tr>`;
-  if (p.cols)        rows+=`<tr><td>レイアウト</td><td>${p.cols}列</td></tr>`;
-  if (p.direction)   rows+=`<tr><td>出題方向</td><td>${p.direction==='en2ja'?'英語→日本語':'日本語→英語'}</td></tr>`;
-  if (p.mode)        rows+=`<tr><td>モード</td><td>${p.mode==='print'?'印刷用':'画面で回答'}</td></tr>`;
-  d.style.display='block';
-  d.innerHTML=`<div class="voice-heard">認識：<em>「${heard}」</em></div>
-    <table class="voice-table">${rows}</table>
-    <div class="voice-actions">
-      <button class="btn btn-success" onclick="applyVoice()">この設定でテスト作成</button>
-      <button class="btn btn-secondary" onclick="toggleVoice()">🎤 やり直す</button>
-    </div>`;
-  d.dataset.parsed = JSON.stringify(p);
-}
-function applyVoice() {
-  const p = JSON.parse(document.getElementById('voicePreview').dataset.parsed||'{}');
-  if (p.rangeFrom) document.getElementById('rangeFrom').value=p.rangeFrom;
-  if (p.rangeTo)   document.getElementById('rangeTo').value=p.rangeTo;
-  if (p.countMode) { document.querySelector(`input[name=countMode][value=${p.countMode}]`).checked=true; toggleCountInput(); }
-  if (p.wordCount) document.getElementById('wordCount').value=p.wordCount;
-  if (p.sortMode)  document.querySelector(`input[name=sortMode][value=${p.sortMode}]`).checked=true;
-  if (p.cols)      document.querySelector(`input[name=cols][value=${p.cols}]`).checked=true;
-  if (p.direction) document.querySelector(`input[name=direction][value=${p.direction}]`).checked=true;
-  if (p.mode)      document.querySelector(`input[name=mode][value=${p.mode}]`).checked=true;
-  document.getElementById('voicePreview').style.display='none';
-  updateInfo(); generateTest();
-}
-function showVoiceErr(msg) {
-  const d=document.getElementById('voicePreview');
-  d.style.display='block';
-  d.innerHTML=`<div style="color:#dc2626;font-size:13px;">${msg}</div>`;
-}
 
 // ── Upload Modal ─────────────────────────────────────────
 function openModal() {
@@ -1737,7 +1589,6 @@ function exportLogPDF() {
   setTimeout(() => win.print(), 400);
 }
 
-initSpeech();
 </script>
 </body>
 </html>
