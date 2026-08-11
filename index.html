@@ -424,7 +424,6 @@ body {
 .test-item { padding: 8px 10px; border-bottom: var(--border); }
 .item-num { font-size: 11px; color: var(--gray-300); font-weight: 400; display: block; margin-bottom: 1px; }
 .item-word { font-size: 17px; font-weight: 500; color: var(--black); line-height: 1.3; }
-.answer-line { border-bottom: 1px solid rgba(0,0,0,0.15); height: 26px; margin-top: 4px; }
 .answer-input {
   width: 100%; border: none; border-bottom: 1px solid rgba(0,0,0,0.15);
   font-family: var(--font); font-size: 14px; padding: 4px 0;
@@ -464,16 +463,6 @@ body {
 .result-title { font-size: 22px; font-weight: 700; letter-spacing: -0.25px; }
 .result-pct { font-size: 16px; color: var(--gray-500); margin-bottom: 28px; }
 .result-actions { display: flex; flex-direction: column; gap: 8px; }
-
-/* ── Print ── */
-@media print {
-  body { background: #fff; }
-  .topbar, .action-bar, .page { display: none !important; }
-  .test-page { display: block !important; }
-  .test-inner { padding: 8px; }
-  .answer-input { display: none; }
-  @page { margin: 10mm; }
-}
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
@@ -793,11 +782,7 @@ body {
         <span class="form-row-label">モード</span>
         <div class="radio-pills">
           <span class="radio-pill">
-            <input type="radio" id="mPrint" name="mode" value="print" checked>
-            <label for="mPrint">印刷用</label>
-          </span>
-          <span class="radio-pill">
-            <input type="radio" id="mLive" name="mode" value="interactive">
+            <input type="radio" id="mLive" name="mode" value="interactive" checked>
             <label for="mLive">画面で回答</label>
           </span>
           <span class="radio-pill">
@@ -1166,7 +1151,7 @@ function confirmUpload() {
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 // ── Test generation ───────────────────────────────────────
-let testWords=[], isInteractive=false, direction='en2ja';
+let testWords=[], direction='en2ja';
 document.querySelectorAll('#settingsForm input').forEach(el=>{ el.addEventListener('change',updateInfo); el.addEventListener('input',updateInfo); });
 
 function toggleCountInput() {
@@ -1196,7 +1181,6 @@ function generateTest() {
   const cols     =+document.querySelector('input[name=cols]:checked').value;
   const modeVal  =document.querySelector('input[name=mode]:checked').value;
   direction      =document.querySelector('input[name=direction]:checked').value;
-  isInteractive  =modeVal==='interactive';
   const isCard   =modeVal==='card';
   if (from<1||to>currentDS.total||from>to) { alert(`出題範囲：1〜${currentDS.total} で指定してください`); return; }
   let pool=currentDS.words.filter(w=>w.id>=from&&w.id<=to);
@@ -1233,15 +1217,13 @@ function renderTest(cols,from,to) {
     <div class="test-grid cols-${cols}">`;
   testWords.forEach((w,i)=>{
     const q=direction==='en2ja'?w.en:w.ja;
-    html+=`<div class="test-item"><span class="item-num">${w.id}</span><div class="item-word">${esc(q)}</div>${isInteractive?`<input class="answer-input" data-idx="${i}" autocomplete="off" spellcheck="false">`:`<div class="answer-line"></div>`}</div>`;
+    html+=`<div class="test-item"><span class="item-num">${w.id}</span><div class="item-word">${esc(q)}</div><input class="answer-input" data-idx="${i}" autocomplete="off" spellcheck="false"></div>`;
   });
   html+='</div>';
   document.getElementById('testSheet').innerHTML=html;
 
   let btns=`<button class="btn btn-secondary" onclick="backToSettings()">← 設定に戻る</button>`;
-  if (isInteractive) btns+=`<button class="btn btn-primary" onclick="checkAnswers()">採点する</button>`;
-  else { btns+=`<button class="btn btn-primary" onclick="window.print()">印刷</button>`;
-         btns+=`<button class="btn btn-success" onclick="showAnswers()">解答を表示</button>`; }
+  btns+=`<button class="btn btn-primary" onclick="checkAnswers()">採点する</button>`;
   document.getElementById('actionBar').innerHTML=btns;
 
   document.getElementById('settingsScreen').style.display='none';
@@ -1250,16 +1232,6 @@ function renderTest(cols,from,to) {
   window.scrollTo(0,0);
 }
 
-function showAnswers() {
-  document.querySelectorAll('.test-item').forEach((item,i)=>{
-    item.querySelector('.answer-line')?.remove();
-    if (!item.querySelector('.answer-text')) {
-      const d=document.createElement('div'); d.className='answer-text';
-      d.textContent=direction==='en2ja'?testWords[i].ja:testWords[i].en;
-      item.appendChild(d);
-    }
-  });
-}
 
 // ── Scoring (A+B hybrid) ──────────────────────────────────
 function normalize(s){
@@ -1323,7 +1295,7 @@ function retryWrong(){
     if(!isCorrect(input.value.trim(),expected,direction,w))wrong.push(w);
   });
   if(wrong.length===0){alert('全問正解です！');return;}
-  testWords=wrong; isInteractive=true;
+  testWords=wrong;
   const cols=document.querySelector('.test-grid').classList.contains('cols-3')?3:2;
   renderTest(cols,Math.min(...wrong.map(w=>w.id)),Math.max(...wrong.map(w=>w.id)));
 }
@@ -1520,7 +1492,7 @@ function renderLogTable() {
   const rows = logs.map((e, i) => {
     const dt   = new Date(e.timestamp).toLocaleString('ja-JP',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
     const dir  = e.direction==='en2ja' ? '英→日' : '日→英';
-    const mode = e.mode==='print' ? '印刷' : e.mode==='card' ? 'カード' : '画面';
+    const mode = e.mode==='card' ? 'カード' : '画面';
     const sort = e.sortMode==='random' ? '乱'     : '順';
     return `<tr>
       <td>${dt}</td><td>${esc(e.dataset)}</td>
@@ -1552,7 +1524,7 @@ function exportLogPDF() {
   const rows  = logs.map(e => {
     const dt   = new Date(e.timestamp).toLocaleString('ja-JP');
     const dir  = e.direction==='en2ja' ? '英語→日本語' : '日本語→英語';
-    const mode = e.mode==='print' ? '印刷用' : e.mode==='card' ? 'カード学習' : '画面で回答';
+    const mode = e.mode==='card' ? 'カード学習' : '画面で回答';
     const sort = e.sortMode==='random' ? 'ランダム'      : '順番通り';
     return `<tr>
       <td>${dt}</td><td>${esc(e.dataset)}</td>
