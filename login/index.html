@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ログイン — レベル別英単語テスト</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  min-height: 100vh;
+  background: #f6f5f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 23px 52px rgba(0,0,0,0.05);
+  padding: 36px 32px;
+}
+.app-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.85);
+  margin-bottom: 4px;
+}
+.app-sub {
+  font-size: 12px;
+  color: #a39e98;
+  margin-bottom: 32px;
+}
+h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #615d59;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.login-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.85);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 10px;
+}
+.login-btn:hover {
+  border-color: #0075de;
+  background: rgba(0,117,222,0.03);
+}
+.login-btn .btn-label { display: block; }
+.login-btn .btn-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: #a39e98;
+  margin-top: 2px;
+}
+.login-btn.primary {
+  background: #0075de;
+  border-color: #0075de;
+  color: #fff;
+}
+.login-btn.primary:hover { background: #005bab; border-color: #005bab; }
+.login-btn.primary .btn-sub { color: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="app-title">レベル別英単語テスト</div>
+  <div class="app-sub">ログイン方法を選んでください</div>
+
+  <h2>ログイン</h2>
+
+  <!-- Entry 1: ミントサイト（Firebase） — Firebase設定後に有効化 -->
+  <a href="./epis/" class="login-btn primary" id="episBtn">
+    <span class="btn-label">エピスミントサイトでログイン</span>
+    <span class="btn-sub">まなびログ・整序トレーニングと同じID/パスワード</span>
+  </a>
+
+  <!-- Entry 2: 管理者設定の固定ID/PW -->
+  <a href="./simple/" class="login-btn">
+    <span class="btn-label">IDとパスワードでログイン</span>
+    <span class="btn-sub">管理者から案内されたID・パスワードを使用</span>
+  </a>
+</div>
+</body>
+</html>

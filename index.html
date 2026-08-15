@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>レベル別英単語テスト</title>
+<script>
+// 認証チェック — 未ログインなら /login/ へリダイレクト
+(function() {
+  try {
+    var auth = JSON.parse(sessionStorage.getItem('vocab_auth') || 'null');
+    // セッションの有効期間: 12時間
+    var EXPIRE_MS = 12 * 60 * 60 * 1000;
+    if (!auth || !auth.at || (Date.now() - auth.at) > EXPIRE_MS) {
+      sessionStorage.removeItem('vocab_auth');
+      var base = location.pathname.replace(/\/[^/]*$/, '') || '';
+      location.replace(base + '/login/');
+    }
+  } catch(e) {
+    location.replace('/login/');
+  }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

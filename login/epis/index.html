@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ログイン — レベル別英単語テスト</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  min-height: 100vh;
+  background: #f6f5f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 23px 52px rgba(0,0,0,0.05);
+  padding: 36px 32px;
+}
+.app-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.85);
+  margin-bottom: 28px;
+}
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.85);
+  margin-bottom: 20px;
+}
+.field { margin-bottom: 16px; }
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #615d59;
+  margin-bottom: 6px;
+}
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.9);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus { border-color: #0075de; box-shadow: 0 0 0 2px rgba(0,117,222,0.15); }
+.btn {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 4px;
+  border: none;
+  background: #0075de;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+.btn:hover { background: #005bab; }
+.btn:disabled { background: #a39e98; cursor: default; }
+.error {
+  background: #fff5f5;
+  border: 1px solid rgba(220,38,38,0.15);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #c0392b;
+  display: none;
+}
+.note {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  font-size: 12px;
+  color: #a39e98;
+}
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #a39e98;
+  text-decoration: none;
+}
+.back-link:hover { color: #615d59; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="app-title">レベル別英単語テスト</div>
+  <h2>ログイン</h2>
+
+  <div class="error" id="errMsg"></div>
+
+  <form id="loginForm">
+    <div class="field">
+      <label for="uid">ユーザーID</label>
+      <input type="text" id="uid" autocomplete="username"
+        placeholder="アルファベット・数字で記入" required>
+    </div>
+    <div class="field">
+      <label for="pw">パスワード</label>
+      <input type="password" id="pw" autocomplete="current-password"
+        placeholder="6文字以上" required>
+    </div>
+    <button type="submit" class="btn" id="submitBtn">ログイン</button>
+  </form>
+
+  <p class="note">エピスミントサイトと同じID・パスワードでログインできます</p>
+  <a href="../" class="back-link">← 別のログイン方法</a>
+</div>
+
+<!-- Firebase SDK (CDN) -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+// ▼ Firebase設定値をここに入力してください
+const FIREBASE_CONFIG = {
+  apiKey:            'AIzaSyCQmCArh1sdW-Cb6bR9v4hPR-yNssa53GE',
+  authDomain:        'epis-mintsite.firebaseapp.com',
+  projectId:         'epis-mintsite',
+  storageBucket:     'epis-mintsite.firebasestorage.app.appspot.com',
+  messagingSenderId: '478150067283',
+  appId:             '1:478150067283:web:7fe350500f78d12cd6f2a6',
+};
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+
+const form    = document.getElementById('loginForm');
+const errMsg  = document.getElementById('errMsg');
+const btn     = document.getElementById('submitBtn');
+
+function validate(uid, pw) {
+  if (/\s/.test(uid))               return 'スペースは使用できません。';
+  if (!/^[a-zA-Z0-9]+$/.test(uid)) return 'アルファベットと数字のみ使用できます。';
+  if (/\s/.test(pw))                return 'パスワードにスペースは使用できません。';
+  if (pw.length < 6)                return 'パスワードは6文字以上で入力してください。';
+  return null;
+}
+
+function showError(msg) {
+  errMsg.textContent = msg;
+  errMsg.style.display = 'block';
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errMsg.style.display = 'none';
+
+  const uid = document.getElementById('uid').value.trim();
+  const pw  = document.getElementById('pw').value;
+
+  const validErr = validate(uid, pw);
+  if (validErr) { showError(validErr); return; }
+
+  btn.disabled = true;
+  btn.textContent = '確認中...';
+
+  try {
+    const email = `${uid}@example.com`;
+    await signInWithEmailAndPassword(auth, email, pw);
+
+    // 認証成功 → sessionStorage にセットしてメインアプリへ
+    sessionStorage.setItem('vocab_auth', JSON.stringify({
+      type: 'epis',
+      uid:  uid,
+      at:   Date.now(),
+    }));
+    window.location.href = '../../';
+
+  } catch (err) {
+    const code = err.code || '';
+    if (code === 'auth/wrong-password' || code === 'auth/user-not-found'
+        || code === 'auth/invalid-credential') {
+      showError('IDまたはパスワードが正しくありません。');
+    } else if (code === 'auth/too-many-requests') {
+      showError('ログインの試行回数が多すぎます。しばらく待ってから再試行してください。');
+    } else {
+      showError('ログインに失敗しました。再度お試しください。');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'ログイン';
+  }
+});
+</script>
+</body>
+</html>
