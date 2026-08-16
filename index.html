@@ -8,9 +8,25 @@
 // 認証チェック — 未ログインなら /login/ へリダイレクト
 (function() {
   try {
-    var auth = JSON.parse(sessionStorage.getItem('vocab_auth') || 'null');
-    // セッションの有効期間: 12時間
     var EXPIRE_MS = 12 * 60 * 60 * 1000;
+
+    // まなびログ等から ?uid= パラメータで渡された場合は自動認証
+    var params = new URLSearchParams(location.search);
+    var uid = params.get('uid');
+    if (uid && /^[a-zA-Z0-9]+$/.test(uid)) {
+      sessionStorage.setItem('vocab_auth', JSON.stringify({
+        type: 'sso',
+        uid:  uid,
+        at:   Date.now(),
+      }));
+      // URLからuidパラメータを消してクリーンなURLにする
+      params.delete('uid');
+      var clean = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
+      history.replaceState(null, '', clean);
+      return;
+    }
+
+    var auth = JSON.parse(sessionStorage.getItem('vocab_auth') || 'null');
     if (!auth || !auth.at || (Date.now() - auth.at) > EXPIRE_MS) {
       sessionStorage.removeItem('vocab_auth');
       var base = location.pathname.replace(/\/[^/]*$/, '') || '';
