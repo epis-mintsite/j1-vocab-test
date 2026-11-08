@@ -8,9 +8,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
-  background: #f6f5f4;
+  background: #eef1f6;
   min-height: 100vh;
-  color: rgba(0,0,0,0.85);
+  color: #1a1f2e;
 }
 
 /* ── ログイン画面 ── */
@@ -25,42 +25,66 @@ body {
   width: 100%;
   max-width: 380px;
   background: #fff;
-  border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.1);
-  box-shadow: 0 23px 52px rgba(0,0,0,0.05);
-  padding: 36px 32px;
+  border-radius: 14px;
+  border: 1px solid #dde2ed;
+  box-shadow: 0 8px 32px rgba(30,40,80,0.10);
+  overflow: hidden;
 }
-.login-card .app-title {
+.login-card-header {
+  background: #1e2b4a;
+  padding: 28px 32px 24px;
+}
+.login-card-header .app-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #7b9ec8;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.login-card-header .app-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.login-card-header .app-sub {
+  font-size: 12px;
+  color: #7b9ec8;
+}
+.login-card-body {
+  padding: 28px 32px 24px;
+}
+.login-card-body h2 {
   font-size: 14px;
   font-weight: 700;
-  color: rgba(0,0,0,0.85);
-  margin-bottom: 4px;
-}
-.login-card .app-sub {
-  font-size: 12px;
-  color: #a39e98;
-  margin-bottom: 28px;
-}
-.login-card h2 {
-  font-size: 15px;
-  font-weight: 600;
+  color: #1a1f2e;
   margin-bottom: 20px;
 }
 
 /* ── 管理画面 ── */
 #adminScreen { display: none; }
 .topbar {
-  height: 52px;
-  background: #fff;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  height: 56px;
+  background: #1e2b4a;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 28px;
 }
-.topbar-title { font-size: 14px; font-weight: 700; }
-.topbar-sub { font-size: 12px; color: #a39e98; margin-top: 1px; }
-.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-badge {
+  background: #2d4270;
+  color: #7b9ec8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.topbar-title { font-size: 14px; font-weight: 700; color: #fff; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
 .main {
   max-width: 700px;
   margin: 32px auto;
@@ -71,43 +95,51 @@ body {
 .panel {
   background: #fff;
   border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.08);
-  padding: 24px;
+  border: 1px solid #dde2ed;
   margin-bottom: 20px;
+  overflow: hidden;
+}
+.panel-header {
+  background: #f5f7fb;
+  border-bottom: 1px solid #dde2ed;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .panel-title {
   font-size: 13px;
   font-weight: 700;
-  color: rgba(0,0,0,0.85);
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: #1e2b4a;
 }
+.panel-body { padding: 20px; }
 
 /* ── フォーム ── */
 .field { margin-bottom: 14px; }
 label {
   display: block;
   font-size: 12px;
-  font-weight: 500;
-  color: #615d59;
+  font-weight: 600;
+  color: #4a5568;
   margin-bottom: 5px;
 }
 input[type="text"],
 input[type="password"] {
   width: 100%;
-  border: 1px solid #dddddd;
+  border: 1px solid #c8d0e0;
   border-radius: 6px;
   padding: 8px 11px;
   font-size: 14px;
-  color: rgba(0,0,0,0.9);
+  color: #1a1f2e;
+  background: #f9fafc;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s;
 }
 input:focus {
-  border-color: #0075de;
-  box-shadow: 0 0 0 2px rgba(0,117,222,0.12);
+  border-color: #3b6fd4;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59,111,212,0.12);
 }
 .inline-row {
   display: grid;
@@ -128,16 +160,16 @@ input:focus {
   white-space: nowrap;
   transition: background 0.15s, opacity 0.15s;
 }
-.btn-primary { background: #0075de; color: #fff; }
-.btn-primary:hover { background: #005bab; }
-.btn-primary:disabled { background: #a39e98; cursor: default; }
-.btn-danger { background: rgba(220,38,38,0.08); color: #c0392b; border: 1px solid rgba(220,38,38,0.2); }
-.btn-danger:hover { background: rgba(220,38,38,0.15); }
-.btn-ghost { background: transparent; color: #615d59; border: 1px solid rgba(0,0,0,0.12); }
-.btn-ghost:hover { background: rgba(0,0,0,0.04); }
+.btn-primary { background: #3b6fd4; color: #fff; }
+.btn-primary:hover { background: #2f5cb8; }
+.btn-primary:disabled { background: #a0aec0; cursor: default; }
+.btn-danger { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6c6; }
+.btn-danger:hover { background: #ffe0e0; }
+.btn-ghost { background: transparent; color: #7b9ec8; border: 1px solid #3d5278; }
+.btn-ghost:hover { background: rgba(123,158,200,0.12); color: #fff; }
 .btn-full { width: 100%; padding: 10px; font-size: 14px; }
 
-/* ── エラー/成功メッセージ ── */
+/* ── メッセージ ── */
 .msg {
   border-radius: 6px;
   padding: 10px 14px;
@@ -145,49 +177,69 @@ input:focus {
   margin-bottom: 14px;
   display: none;
 }
-.msg-error { background: #fff5f5; border: 1px solid rgba(220,38,38,0.15); color: #c0392b; }
-.msg-success { background: #f0fdf4; border: 1px solid rgba(22,163,74,0.2); color: #15803d; }
+.msg-error   { background: #fff5f5; border: 1px solid #f5c6c6; color: #c0392b; }
+.msg-success { background: #f0fdf4; border: 1px solid #a7f3c8; color: #15803d; }
 
-/* ── ユーザー一覧テーブル ── */
-.user-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
+/* ── テーブル ── */
+.user-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .user-table th {
   text-align: left;
   font-size: 11px;
-  font-weight: 600;
-  color: #a39e98;
+  font-weight: 700;
+  color: #7b8ea8;
   letter-spacing: 0.06em;
-  padding: 0 10px 10px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 0 12px 10px;
+  border-bottom: 1px solid #dde2ed;
+  background: #f5f7fb;
 }
+.user-table th:first-child { border-radius: 0; padding-left: 20px; }
+.user-table th:last-child { padding-right: 20px; }
 .user-table td {
-  padding: 12px 10px;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  padding: 12px 12px;
+  border-bottom: 1px solid #eef1f6;
   vertical-align: middle;
 }
+.user-table td:first-child { padding-left: 20px; }
+.user-table td:last-child { padding-right: 20px; }
 .user-table tr:last-child td { border-bottom: none; }
-.user-id { font-weight: 600; font-variant-numeric: tabular-nums; }
-.user-date { color: #a39e98; font-size: 12px; }
+.user-table tr:hover td { background: #f9fafc; }
+.user-id {
+  font-weight: 700;
+  color: #1e2b4a;
+  font-variant-numeric: tabular-nums;
+}
+.user-date { color: #94a3b8; font-size: 12px; }
 .empty-state {
   text-align: center;
-  padding: 32px 20px;
-  color: #a39e98;
+  padding: 36px 20px;
+  color: #94a3b8;
   font-size: 13px;
 }
 .count-badge {
-  display: inline-block;
-  background: rgba(0,117,222,0.1);
-  color: #0075de;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #3b6fd4;
+  color: #fff;
   border-radius: 99px;
   padding: 1px 8px;
   font-size: 11px;
   font-weight: 700;
-  margin-left: 6px;
-  vertical-align: middle;
+  min-width: 22px;
 }
+.hint { font-size: 11px; color: #94a3b8; margin-top: 10px; }
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 12px;
+  color: #7b9ec8;
+  text-decoration: none;
+  padding: 10px 0;
+  border-top: 1px solid #dde2ed;
+  transition: color 0.15s;
+}
+.back-link:hover { color: #3b6fd4; }
 </style>
 </head>
 <body>
@@ -195,30 +247,32 @@ input:focus {
 <!-- ── ログイン画面 ── -->
 <div id="loginScreen">
   <div class="login-card">
-    <div class="app-title">レベル別英単語テスト</div>
-    <div class="app-sub">管理者専用</div>
-    <h2>管理者ログイン</h2>
-    <div class="msg msg-error" id="loginErr"></div>
-    <form id="loginForm">
-      <div class="field">
-        <label>管理者パスワード</label>
-        <input type="password" id="adminPw" placeholder="パスワードを入力" required autofocus>
-      </div>
-      <button type="submit" class="btn btn-primary btn-full" id="loginBtn">ログイン</button>
-    </form>
-    <p style="font-size:11px;color:#a39e98;margin-top:16px;text-align:center;">
-      管理者パスワードはページのソースで設定します
-    </p>
-    <a href="../epis/" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:#a39e98;text-decoration:none;">← 生徒のログイン画面へ</a>
+    <div class="login-card-header">
+      <div class="app-label">Admin Panel</div>
+      <div class="app-title">レベル別英単語テスト</div>
+      <div class="app-sub">管理者専用画面</div>
+    </div>
+    <div class="login-card-body">
+      <h2>管理者ログイン</h2>
+      <div class="msg msg-error" id="loginErr"></div>
+      <form id="loginForm">
+        <div class="field">
+          <label>管理者パスワード</label>
+          <input type="password" id="adminPw" placeholder="パスワードを入力" required autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">ログイン</button>
+      </form>
+    </div>
+    <a href="../epis/" class="back-link">← 生徒のログイン画面へ</a>
   </div>
 </div>
 
 <!-- ── 管理画面 ── -->
 <div id="adminScreen">
   <div class="topbar">
-    <div>
-      <div class="topbar-title">ユーザー管理</div>
-      <div class="topbar-sub">レベル別英単語テスト — 管理者画面</div>
+    <div class="topbar-left">
+      <span class="topbar-badge">Admin</span>
+      <span class="topbar-title">ユーザー管理</span>
     </div>
     <div class="topbar-right">
       <button class="btn btn-ghost" onclick="logout()">ログアウト</button>
@@ -229,33 +283,35 @@ input:focus {
 
     <!-- ユーザー追加 -->
     <div class="panel">
-      <div class="panel-title">ユーザーを追加</div>
-      <div class="msg msg-error"   id="addErr"></div>
-      <div class="msg msg-success" id="addOk"></div>
-      <div class="inline-row">
-        <div class="field" style="margin:0">
-          <label>ユーザーID</label>
-          <input type="text" id="newId" placeholder="例: student01" autocomplete="off"
-            pattern="[a-zA-Z0-9]+" title="アルファベットと数字のみ">
-        </div>
-        <div class="field" style="margin:0">
-          <label>パスワード</label>
-          <input type="password" id="newPw" placeholder="6文字以上" autocomplete="new-password">
-        </div>
-        <button class="btn btn-primary" onclick="addUser()">追加</button>
+      <div class="panel-header">
+        <div class="panel-title">ユーザーを追加</div>
       </div>
-      <p style="font-size:11px;color:#a39e98;margin-top:10px;">
-        IDはアルファベット・数字のみ。パスワードは6文字以上。
-      </p>
+      <div class="panel-body">
+        <div class="msg msg-error"   id="addErr"></div>
+        <div class="msg msg-success" id="addOk"></div>
+        <div class="inline-row">
+          <div class="field" style="margin:0">
+            <label>ユーザーID</label>
+            <input type="text" id="newId" placeholder="例: student01" autocomplete="off"
+              pattern="[a-zA-Z0-9]+" title="アルファベットと数字のみ">
+          </div>
+          <div class="field" style="margin:0">
+            <label>パスワード</label>
+            <input type="password" id="newPw" placeholder="6文字以上" autocomplete="new-password">
+          </div>
+          <button class="btn btn-primary" onclick="addUser()">追加</button>
+        </div>
+        <p class="hint">IDはアルファベット・数字のみ。パスワードは6文字以上。</p>
+      </div>
     </div>
 
     <!-- ユーザー一覧 -->
     <div class="panel">
-      <div class="panel-title">
-        登録ユーザー一覧
+      <div class="panel-header">
+        <div class="panel-title">登録ユーザー一覧</div>
         <span class="count-badge" id="userCount">0</span>
       </div>
-      <div class="msg msg-success" id="delOk"></div>
+      <div class="msg msg-success" id="delOk" style="margin:12px 20px 0;"></div>
       <table class="user-table">
         <thead>
           <tr>
@@ -275,14 +331,7 @@ input:focus {
 </div>
 
 <script>
-// ▼ 管理者パスワードのSHA-256ハッシュをここに設定してください
-// 現在のデフォルトパスワード: "admin1234"
-// 変更する場合はブラウザのコンソールで以下を実行:
-//   const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('新しいパスワード'));
-//   console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''));
 const ADMIN_PW_HASH = '1302feab3f480c34c382951164966ae2e3e27fd3966c18583f714e84ff6849a6';
-// ↑ "admin1234" のSHA-256ハッシュ
-
 const STORAGE_KEY = 'vocab_simple_users';
 
 async function sha256(str) {
@@ -297,7 +346,6 @@ function showMsg(id, msg) {
   setTimeout(() => { el.style.display = 'none'; }, 3000);
 }
 
-// ── 認証 ──
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('loginBtn');
@@ -326,30 +374,21 @@ function logout() {
   document.getElementById('adminPw').value = '';
 }
 
-// ── ユーザー管理 ──
 function loadUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch { return []; }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { return []; }
 }
 
-function saveUsers(users) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-}
+function saveUsers(users) { localStorage.setItem(STORAGE_KEY, JSON.stringify(users)); }
 
 function renderUsers() {
   const users = loadUsers();
   const tbody = document.getElementById('userTableBody');
   const empty = document.getElementById('emptyState');
   document.getElementById('userCount').textContent = users.length;
-
   tbody.innerHTML = '';
-  if (users.length === 0) {
-    empty.style.display = 'block';
-    return;
-  }
+  if (users.length === 0) { empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-
   users.forEach((u, i) => {
     const tr = document.createElement('tr');
     const date = u.createdAt
@@ -371,18 +410,14 @@ function renderUsers() {
 async function addUser() {
   const id = document.getElementById('newId').value.trim();
   const pw = document.getElementById('newPw').value;
-
   if (!id || !pw) { showMsg('addErr', 'IDとパスワードを入力してください。'); return; }
   if (!/^[a-zA-Z0-9]+$/.test(id)) { showMsg('addErr', 'IDはアルファベットと数字のみ使用できます。'); return; }
   if (pw.length < 6) { showMsg('addErr', 'パスワードは6文字以上にしてください。'); return; }
-
   const users = loadUsers();
   if (users.some(u => u.id === id)) { showMsg('addErr', `ID "${id}" はすでに登録されています。`); return; }
-
   const hash = await sha256(pw);
   users.push({ id, hash, createdAt: Date.now() });
   saveUsers(users);
-
   document.getElementById('newId').value = '';
   document.getElementById('newPw').value = '';
   renderUsers();
