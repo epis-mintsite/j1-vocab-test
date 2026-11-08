@@ -287,6 +287,27 @@ body {
   color: var(--notion-blue); font-weight: 600;
 }
 
+/* 出題数 — ティール */
+[name="countMode"]:checked + label {
+  background: #e6faf8; border-color: #0d9488; color: #0d9488;
+}
+/* 出題順 — パープル */
+[name="sortMode"]:checked + label {
+  background: #f0ebff; border-color: #7c3aed; color: #7c3aed;
+}
+/* レイアウト — アンバー */
+[name="cols"]:checked + label {
+  background: #fff8e6; border-color: #d97706; color: #d97706;
+}
+/* 出題方向 — ローズ */
+[name="direction"]:checked + label {
+  background: #fff0f3; border-color: #e11d78; color: #e11d78;
+}
+/* モード — グリーン */
+[name="mode"]:checked + label {
+  background: #edfcf2; border-color: #16a34a; color: #16a34a;
+}
+
 /* Count field */
 .count-field {
   display: flex; align-items: center; gap: 8px; margin-top: 10px;
