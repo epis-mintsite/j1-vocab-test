@@ -59,11 +59,11 @@
   --warm-dark:   #31302e;
   --gray-500:    #615d59;
   --gray-300:    #a39e98;
-  --notion-blue: #0075de;
-  --active-blue: #005bab;
-  --focus-blue:  #097fe8;
-  --badge-bg:    #f2f9ff;
-  --badge-text:  #097fe8;
+  --notion-blue: #3b6fd4;
+  --active-blue: #2f5cb8;
+  --focus-blue:  #3b6fd4;
+  --badge-bg:    #eef3fc;
+  --badge-text:  #3b6fd4;
   --teal:        #2a9d99;
   --green:       #1aae39;
   --orange:      #dd5b00;
@@ -96,27 +96,22 @@ body {
   font-weight: 400;
   line-height: 1.5;
   color: var(--black);
-  background: var(--warm-white);
+  background: #eef1f6;
   -webkit-font-smoothing: antialiased;
-}
-
-/* ── Page shell ── */
-.page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 48px 16px 80px;
 }
 
 /* ── Top nav bar ── */
 .topbar {
   width: 100%;
-  max-width: 680px;
+  height: 54px;
+  background: #1e2b4a;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 .topbar-logo {
   display: flex;
@@ -124,32 +119,41 @@ body {
   gap: 10px;
   text-decoration: none;
 }
-.topbar-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+.topbar-logo svg { width: 26px; height: 26px; flex-shrink: 0; }
 .topbar-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--black);
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
   letter-spacing: -0.1px;
 }
 .topbar-guide {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--gray-500);
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
   padding: 5px 12px;
   border-radius: var(--r-micro);
   transition: background 0.15s, color 0.15s;
 }
-.topbar-guide:hover { background: var(--black-05); color: var(--black); }
+.topbar-guide:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ── Page shell ── */
+.page {
+  min-height: calc(100vh - 54px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 16px 80px;
+}
 
 /* ── Card ── */
 .card {
   width: 100%;
   max-width: 680px;
   background: var(--white);
-  border: var(--border);
+  border: 1px solid #dde2ed;
   border-radius: var(--r-large);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 24px rgba(30,40,80,0.08);
   padding: 32px;
 }
 
@@ -668,14 +672,15 @@ body {
 /* ── Topbar actions group ── */
 .topbar-actions { display: flex; align-items: center; gap: 4px; }
 .topbar-btn {
-  font-size: 14px; font-weight: 500; color: var(--gray-500);
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.65);
   text-decoration: none; padding: 5px 12px;
-  border-radius: var(--r-micro);
+  border-radius: var(--r-micro); background: none; border: none; cursor: pointer;
+  font-family: var(--font);
   transition: background 0.15s, color 0.15s;
   background: none; border: none; cursor: pointer;
   font-family: var(--font); white-space: nowrap;
 }
-.topbar-btn:hover { background: var(--black-05); color: var(--black); }
+.topbar-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
 /* ── Log modal ── */
 .log-table-wrap {
@@ -708,14 +713,11 @@ body {
 
 <!-- ===== Settings screen ===== -->
 <div id="settingsScreen">
-<div class="page">
-
   <!-- Top bar -->
   <nav class="topbar">
     <a class="topbar-logo" href="#">
-      <!-- Notion-style book icon -->
       <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="28" height="28" rx="6" fill="#0075de"/>
+        <rect width="28" height="28" rx="6" fill="#3b6fd4"/>
         <path d="M7 8h10a3 3 0 010 6H7V8z" fill="white" opacity="0.9"/>
         <path d="M7 14h11a3 3 0 010 6H7v-6z" fill="white" opacity="0.6"/>
       </svg>
@@ -727,6 +729,7 @@ body {
       <button class="topbar-btn" onclick="(function(){sessionStorage.removeItem('vocab_auth');location.href='./login/'})()">ログアウト</button>
     </div>
   </nav>
+<div class="page">
 
   <!-- Main card -->
   <div class="card">
