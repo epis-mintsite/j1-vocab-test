@@ -724,6 +724,7 @@ body {
     <div class="topbar-actions">
       <button class="topbar-btn" onclick="openLogModal()">📋 ログ</button>
       <a class="topbar-btn" href="guide.html" target="_blank">操作手順書</a>
+      <button class="topbar-btn" onclick="(function(){sessionStorage.removeItem('vocab_auth');location.href='./login/'})()">ログアウト</button>
     </div>
   </nav>
 
