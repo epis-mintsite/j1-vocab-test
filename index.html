@@ -216,12 +216,33 @@ body {
   box-shadow: 0 0 0 1px var(--notion-blue), var(--shadow-card);
 }
 .ds-btn.loading { opacity: 0.5; pointer-events: none; }
-.ds-group-label {
-  flex-basis: 100%;
-  font-size: 12px; font-weight: 600; color: var(--gray-300);
-  letter-spacing: 0.04em;
-  margin: 10px 0 0;
+.kind-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: #eef3fc;
+  border-radius: 10px;
+  margin-bottom: 20px;
 }
+.kind-tab {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #5a6b8c;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.kind-tab:hover { color: var(--notion-blue); }
+.kind-tab.active {
+  background: #fff;
+  color: var(--notion-blue);
+  box-shadow: 0 1px 3px rgba(30,40,80,0.12);
+}
+.kind-tab:focus-visible { outline: 2px solid var(--notion-blue); outline-offset: 2px; }
 .ds-btn .ds-name {
   font-size: 14px; font-weight: 600; color: var(--black); display: block;
 }
@@ -764,6 +785,10 @@ body {
     <p class="page-subtitle" id="appSubtitle">教材を選んでテストを生成してください</p>
 
     <!-- ① Dataset selector -->
+    <div class="kind-tabs" role="tablist">
+      <button type="button" class="kind-tab active" id="kindTab-word" role="tab" onclick="switchKind('word')">英単語</button>
+      <button type="button" class="kind-tab" id="kindTab-idiom" role="tab" onclick="switchKind('idiom')">英熟語</button>
+    </div>
     <p class="section-label">教材</p>
     <div class="dataset-grid" id="datasetGrid"></div>
     <p class="ds-info" id="dsInfo"></p>
@@ -1022,20 +1047,30 @@ let currentDS = null, loadedCache = {}, parsedWords = [];
 
 const getCustoms  = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch { return []; } };
 const saveCustoms = list => localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-const unitOf = () => (currentDS && /^idioms_/.test(currentDS.id)) ? '個' : '語';
+const KIND_KEY = 'vocab_kind';
+const kindOf = ds => ds.group === 'idiom' ? 'idiom' : 'word';
+let currentKind = (() => { try { return localStorage.getItem(KIND_KEY) === 'idiom' ? 'idiom' : 'word'; } catch { return 'word'; } })();
+
+function switchKind(kind) {
+  if (kind === currentKind) return;
+  const prevId = currentDS?.id;
+  currentKind = kind;
+  try { localStorage.setItem(KIND_KEY, kind); } catch {}
+  document.querySelectorAll('.kind-tab').forEach(t => t.classList.toggle('active', t.id === 'kindTab-' + kind));
+  let next = kind === 'idiom' ? 'idioms_' + prevId : prevId?.replace(/^idioms_/, '');
+  if (!allDatasets().some(d => d.id === next && kindOf(d) === kind)) next = kind === 'idiom' ? 'idioms_j1' : 'j1';
+  currentDS = null;
+  buildGrid();
+  selectDS(next);
+}
+
+const unitOf = () =>(currentDS && /^idioms_/.test(currentDS.id)) ? '個' : '語';
 const allDatasets = () => [...BUILTIN.map(d=>({...d,custom:false})), ...getCustoms().map(d=>({...d,custom:true}))];
 
 function buildGrid() {
   const grid = document.getElementById('datasetGrid');
   grid.innerHTML = '';
-  let idiomHeaderDone = false;
-  allDatasets().forEach(ds => {
-    if (ds.group === 'idiom' && !idiomHeaderDone) {
-      const h = document.createElement('p');
-      h.className = 'ds-group-label'; h.textContent = '熟語';
-      grid.appendChild(h);
-      idiomHeaderDone = true;
-    }
+  allDatasets().filter(ds => kindOf(ds) === currentKind).forEach(ds => {
     const cached = loadedCache[ds.id];
     const unit   = ds.group === 'idiom' ? '個' : '語';
     const count  = cached ? (cached.total > 0 ? `${cached.total}${unit}` : '（準備中）') : '読み込み中…';
@@ -1055,7 +1090,7 @@ function buildGrid() {
   const add = document.createElement('button');
   add.className = 'ds-add'; add.onclick = openModal;
   add.innerHTML = '<span class="plus">＋</span>教材を追加';
-  grid.appendChild(add);
+  if (currentKind === 'word') grid.appendChild(add);
 }
 
 function deleteDS(id) {
@@ -1127,8 +1162,9 @@ window.addEventListener('DOMContentLoaded', () => {
   if (cleaned.length !== allCustoms.length) saveCustoms(cleaned);
   // カスタム教材をメモリキャッシュに事前ロード
   cleaned.forEach(ds => { loadedCache[ds.id] = ds; });
+  document.querySelectorAll('.kind-tab').forEach(t => t.classList.toggle('active', t.id === 'kindTab-' + currentKind));
   buildGrid();
-  selectDS('j1');
+  selectDS(currentKind === 'idiom' ? 'idioms_j1' : 'j1');
   // j1以外のビルトイン教材をバックグラウンドで先読み
   BUILTIN.filter(d => d.id !== 'j1').forEach(d => prefetchDS(d.id));
 });
