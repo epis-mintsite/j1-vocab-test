@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ユーザー管理 — レベル別英単語テスト</title>
+<title>管理画面 — レベル別英単語テスト</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -30,37 +30,16 @@ body {
   box-shadow: 0 8px 32px rgba(30,40,80,0.10);
   overflow: hidden;
 }
-.login-card-header {
-  background: #3b6fd4;
-  padding: 28px 32px 24px;
-}
+.login-card-header { background: #3b6fd4; padding: 28px 32px 24px; }
 .login-card-header .app-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.7);
-  text-transform: uppercase;
-  margin-bottom: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 6px;
 }
-.login-card-header .app-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 2px;
-}
-.login-card-header .app-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.7);
-}
-.login-card-body {
-  padding: 28px 32px 24px;
-}
-.login-card-body h2 {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1f2e;
-  margin-bottom: 20px;
-}
+.login-card-header .app-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.login-card-header .app-sub { font-size: 12px; color: rgba(255,255,255,0.7); }
+.login-card-body { padding: 28px 32px 24px; }
+.login-card-body h2 { font-size: 14px; font-weight: 700; color: #1a1f2e; margin-bottom: 20px; }
+.login-note { font-size: 11px; color: #94a3b8; margin-top: 12px; line-height: 1.6; }
 
 /* ── 管理画面 ── */
 #adminScreen { display: none; }
@@ -71,25 +50,18 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
+  gap: 12px;
 }
-.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .topbar-badge {
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 4px;
+  background: rgba(255,255,255,0.2); color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px;
 }
-.topbar-title { font-size: 14px; font-weight: 700; color: #fff; }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
-.main {
-  max-width: 700px;
-  margin: 32px auto;
-  padding: 0 20px 60px;
-}
+.topbar-title { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-user { font-size: 12px; color: rgba(255,255,255,0.8); }
+.main { max-width: 1040px; margin: 32px auto; padding: 0 20px 60px; }
 
 /* ── カード共通 ── */
 .panel {
@@ -106,25 +78,18 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
-.panel-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1e2b4a;
-}
+.panel-title { font-size: 13px; font-weight: 700; color: #1e2b4a; }
+.panel-header .spacer { flex: 1; }
 .panel-body { padding: 20px; }
 
 /* ── フォーム ── */
 .field { margin-bottom: 14px; }
 label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #4a5568;
-  margin-bottom: 5px;
+  display: block; font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 5px;
 }
-input[type="text"],
-input[type="password"] {
+input[type="text"], input[type="password"], input[type="date"], select {
   width: 100%;
   border: 1px solid #c8d0e0;
   border-radius: 6px;
@@ -136,110 +101,119 @@ input[type="password"] {
   outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
-input:focus {
-  border-color: #3b6fd4;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(59,111,212,0.12);
+input:focus, select:focus {
+  border-color: #3b6fd4; background: #fff; box-shadow: 0 0 0 3px rgba(59,111,212,0.12);
 }
-.inline-row {
+.inline-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; }
+.filter-row {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 2fr 1fr 1.4fr 1fr 1fr;
   gap: 10px;
   align-items: end;
 }
+.filter-row .field { margin: 0; }
 
 /* ── ボタン ── */
 .btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-  transition: background 0.15s, opacity 0.15s;
+  padding: 8px 16px; border-radius: 6px; border: none;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  white-space: nowrap; transition: background 0.15s, opacity 0.15s;
 }
+.btn:focus-visible { outline: 2px solid #3b6fd4; outline-offset: 2px; }
 .btn-primary { background: #3b6fd4; color: #fff; }
 .btn-primary:hover { background: #2f5cb8; }
 .btn-primary:disabled { background: #a0aec0; cursor: default; }
+.btn-soft { background: #eef3fc; color: #2f5cb8; border: 1px solid #d3e0f7; }
+.btn-soft:hover { background: #e2ebfa; }
 .btn-danger { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6c6; }
 .btn-danger:hover { background: #ffe0e0; }
-.btn-ghost { background: transparent; color: #7b9ec8; border: 1px solid #3d5278; }
-.btn-ghost:hover { background: rgba(123,158,200,0.12); color: #fff; }
+.btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.45); }
+.btn-ghost:hover { background: rgba(255,255,255,0.12); }
 .btn-full { width: 100%; padding: 10px; font-size: 14px; }
 
 /* ── メッセージ ── */
-.msg {
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-size: 13px;
-  margin-bottom: 14px;
-  display: none;
-}
+.msg { border-radius: 6px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; display: none; line-height: 1.6; }
 .msg-error   { background: #fff5f5; border: 1px solid #f5c6c6; color: #c0392b; }
 .msg-success { background: #f0fdf4; border: 1px solid #a7f3c8; color: #15803d; }
 
-/* ── テーブル ── */
-.user-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.user-table th {
-  text-align: left;
-  font-size: 11px;
-  font-weight: 700;
-  color: #7b8ea8;
-  letter-spacing: 0.06em;
-  padding: 0 12px 10px;
-  border-bottom: 1px solid #dde2ed;
-  background: #f5f7fb;
+/* ── サマリー ── */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
 }
-.user-table th:first-child { border-radius: 0; padding-left: 20px; }
-.user-table th:last-child { padding-right: 20px; }
-.user-table td {
-  padding: 12px 12px;
-  border-bottom: 1px solid #eef1f6;
-  vertical-align: middle;
+.stat {
+  background: #fff;
+  border: 1px solid #dde2ed;
+  border-radius: 10px;
+  padding: 14px 16px;
 }
-.user-table td:first-child { padding-left: 20px; }
-.user-table td:last-child { padding-right: 20px; }
-.user-table tr:last-child td { border-bottom: none; }
-.user-table tr:hover td { background: #f9fafc; }
-.user-id {
-  font-weight: 700;
-  color: #1e2b4a;
+.stat-label { font-size: 11px; font-weight: 600; color: #7b8ea8; letter-spacing: 0.04em; }
+.stat-value {
+  font-size: 22px; font-weight: 700; color: #1e2b4a; margin-top: 4px;
   font-variant-numeric: tabular-nums;
 }
-.user-date { color: #94a3b8; font-size: 12px; }
-.empty-state {
-  text-align: center;
-  padding: 36px 20px;
-  color: #94a3b8;
-  font-size: 13px;
+.stat-value small { font-size: 12px; font-weight: 600; color: #7b8ea8; margin-left: 2px; }
+
+/* ── テーブル ── */
+.table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  text-align: left; font-size: 11px; font-weight: 700; color: #7b8ea8; letter-spacing: 0.04em;
+  padding: 10px 12px; border-bottom: 1px solid #dde2ed; background: #f5f7fb; white-space: nowrap;
 }
+.data-table td {
+  padding: 11px 12px; border-bottom: 1px solid #eef1f6; vertical-align: middle; white-space: nowrap;
+}
+.data-table th:first-child, .data-table td:first-child { padding-left: 20px; }
+.data-table th:last-child, .data-table td:last-child { padding-right: 20px; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: #f9fafc; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.muted { color: #94a3b8; font-size: 12px; }
+.strong { font-weight: 700; color: #1e2b4a; }
+.tag {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 99px; border: 1px solid transparent;
+}
+.tag-word  { background: #eef3fc; color: #2f5cb8; border-color: #d3e0f7; }
+.tag-idiom { background: #f0ebff; color: #7c3aed; border-color: #e0d4fd; }
+.tag-retry { background: #fff8e6; color: #b45309; border-color: #fde7b0; margin-left: 4px; }
+.score-pill {
+  display: inline-block; min-width: 48px; text-align: center;
+  font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+  font-variant-numeric: tabular-nums;
+}
+.score-good { background: #edfcf2; color: #15803d; }
+.score-mid  { background: #fff8e6; color: #b45309; }
+.score-low  { background: #fff0f3; color: #be123c; }
+.empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 13px; line-height: 1.7; }
 .count-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #3b6fd4;
-  color: #fff;
-  border-radius: 99px;
-  padding: 1px 8px;
-  font-size: 11px;
-  font-weight: 700;
-  min-width: 22px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #3b6fd4; color: #fff; border-radius: 99px;
+  padding: 1px 8px; font-size: 11px; font-weight: 700; min-width: 22px;
 }
 .hint { font-size: 11px; color: #94a3b8; margin-top: 10px; }
 .back-link {
-  display: block;
-  text-align: center;
-  margin-top: 16px;
-  font-size: 12px;
-  color: #7b9ec8;
-  text-decoration: none;
-  padding: 10px 0;
-  border-top: 1px solid #dde2ed;
-  transition: color 0.15s;
+  display: block; text-align: center; margin-top: 16px; font-size: 12px; color: #7b9ec8;
+  text-decoration: none; padding: 10px 0; border-top: 1px solid #dde2ed; transition: color 0.15s;
 }
 .back-link:hover { color: #3b6fd4; }
+details.panel > summary { list-style: none; cursor: pointer; }
+details.panel > summary::-webkit-details-marker { display: none; }
+details.panel > summary .chev { margin-left: auto; color: #7b8ea8; font-size: 12px; transition: transform 0.15s; }
+details.panel[open] > summary .chev { transform: rotate(180deg); }
+
+@media (max-width: 760px) {
+  .topbar { padding: 0 16px; }
+  .topbar-user { display: none; }
+  .main { padding: 0 16px 48px; margin-top: 20px; }
+  .filter-row { grid-template-columns: 1fr 1fr; }
+  .filter-row .field:first-child { grid-column: 1 / -1; }
+  .summary { grid-template-columns: repeat(2, 1fr); }
+  .inline-row { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -257,11 +231,16 @@ input:focus {
       <div class="msg msg-error" id="loginErr"></div>
       <form id="loginForm">
         <div class="field">
-          <label>管理者パスワード</label>
-          <input type="password" id="adminPw" placeholder="パスワードを入力" required autofocus>
+          <label for="adminId">ユーザーID</label>
+          <input type="text" id="adminId" autocomplete="username" placeholder="ミントサイトのID" required autofocus>
+        </div>
+        <div class="field">
+          <label for="adminPw">パスワード</label>
+          <input type="password" id="adminPw" autocomplete="current-password" placeholder="パスワードを入力" required>
         </div>
         <button type="submit" class="btn btn-primary btn-full" id="loginBtn">ログイン</button>
       </form>
+      <p class="login-note">ミントサイトのID・パスワードでログインします。管理者として登録されたIDのみ利用できます。</p>
     </div>
     <a href="../epis/" class="back-link">← 生徒のログイン画面へ</a>
   </div>
@@ -272,173 +251,375 @@ input:focus {
   <div class="topbar">
     <div class="topbar-left">
       <span class="topbar-badge">Admin</span>
-      <span class="topbar-title">ユーザー管理</span>
+      <span class="topbar-title">管理画面</span>
     </div>
     <div class="topbar-right">
-      <button class="btn btn-ghost" onclick="logout()">ログアウト</button>
+      <span class="topbar-user" id="topbarUser"></span>
+      <button class="btn btn-ghost" id="logoutBtn">ログアウト</button>
     </div>
   </div>
 
   <div class="main">
 
-    <!-- ユーザー追加 -->
+    <div class="summary">
+      <div class="stat"><div class="stat-label">実施回数</div><div class="stat-value" id="statCount">0<small>回</small></div></div>
+      <div class="stat"><div class="stat-label">生徒数</div><div class="stat-value" id="statStudents">0<small>人</small></div></div>
+      <div class="stat"><div class="stat-label">解いた問題数</div><div class="stat-value" id="statQuestions">0<small>問</small></div></div>
+      <div class="stat"><div class="stat-label">平均正答率</div><div class="stat-value" id="statAvg">—</div></div>
+    </div>
+
+    <!-- テスト実施記録 -->
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">ユーザーを追加</div>
+        <div class="panel-title">テストの実施記録</div>
+        <span class="count-badge" id="resultCount">0</span>
+        <span class="spacer"></span>
+        <button class="btn btn-soft" id="reloadBtn">最新に更新</button>
+        <button class="btn btn-primary" id="exportBtn">Excelで出力</button>
       </div>
+      <div class="panel-body">
+        <div class="msg msg-error" id="loadErr"></div>
+        <div class="filter-row">
+          <div class="field">
+            <label for="fText">生徒（IDまたは名前）</label>
+            <input type="text" id="fText" placeholder="例: student01" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="fKind">種類</label>
+            <select id="fKind">
+              <option value="">すべて</option>
+              <option value="word">英単語</option>
+              <option value="idiom">英熟語</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fDataset">教材</label>
+            <select id="fDataset"><option value="">すべて</option></select>
+          </div>
+          <div class="field">
+            <label for="fFrom">開始日</label>
+            <input type="date" id="fFrom">
+          </div>
+          <div class="field">
+            <label for="fTo">終了日</label>
+            <input type="date" id="fTo">
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>日時</th>
+              <th>ID</th>
+              <th>名前</th>
+              <th>教材</th>
+              <th>形式</th>
+              <th>出題範囲</th>
+              <th class="num">正解</th>
+              <th class="num">正答率</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="resultEmpty" style="display:none"></div>
+    </div>
+
+    <!-- ユーザー管理（従来機能） -->
+    <details class="panel">
+      <summary class="panel-header">
+        <div class="panel-title">簡易ログインのユーザー管理</div>
+        <span class="count-badge" id="userCount">0</span>
+        <span class="chev">▼</span>
+      </summary>
       <div class="panel-body">
         <div class="msg msg-error"   id="addErr"></div>
         <div class="msg msg-success" id="addOk"></div>
         <div class="inline-row">
           <div class="field" style="margin:0">
-            <label>ユーザーID</label>
-            <input type="text" id="newId" placeholder="例: student01" autocomplete="off"
-              pattern="[a-zA-Z0-9]+" title="アルファベットと数字のみ">
+            <label for="newId">ユーザーID</label>
+            <input type="text" id="newId" placeholder="例: student01" autocomplete="off">
           </div>
           <div class="field" style="margin:0">
-            <label>パスワード</label>
+            <label for="newPw">パスワード</label>
             <input type="password" id="newPw" placeholder="6文字以上" autocomplete="new-password">
           </div>
-          <button class="btn btn-primary" onclick="addUser()">追加</button>
+          <button class="btn btn-primary" id="addUserBtn">追加</button>
         </div>
-        <p class="hint">IDはアルファベット・数字のみ。パスワードは6文字以上。</p>
+        <p class="hint">この一覧は、今開いているブラウザの中にだけ保存されます。生徒のログイン画面からは使えません。</p>
       </div>
-    </div>
-
-    <!-- ユーザー一覧 -->
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title">登録ユーザー一覧</div>
-        <span class="count-badge" id="userCount">0</span>
+      <div class="msg msg-success" id="delOk" style="margin:0 20px 12px;"></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>ユーザーID</th><th>登録日時</th><th></th></tr></thead>
+          <tbody id="userTableBody"></tbody>
+        </table>
       </div>
-      <div class="msg msg-success" id="delOk" style="margin:12px 20px 0;"></div>
-      <table class="user-table">
-        <thead>
-          <tr>
-            <th>ユーザーID</th>
-            <th>登録日時</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="userTableBody"></tbody>
-      </table>
-      <div class="empty-state" id="emptyState" style="display:none">
-        登録ユーザーがいません
-      </div>
-    </div>
+      <div class="empty-state" id="emptyState" style="display:none">登録ユーザーがいません</div>
+    </details>
 
   </div>
 </div>
 
-<script>
-const ADMIN_PW_HASH = '1302feab3f480c34c382951164966ae2e3e27fd3966c18583f714e84ff6849a6';
-const STORAGE_KEY = 'vocab_simple_users';
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
+const app = initializeApp({
+  apiKey:            'AIzaSyCQmCArh1sdW-Cb6bR9v4hPR-yNssa53GE',
+  authDomain:        'epis-mintsite.firebaseapp.com',
+  projectId:         'epis-mintsite',
+  messagingSenderId: '478150067283',
+  appId:             '1:478150067283:web:7fe350500f78d12cd6f2a6',
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const ADMIN_SESSION = 'vocab_admin_session';
+const MAX_ROWS = 3000;
+
+const $ = id => document.getElementById(id);
+let allRows = [];
+
+function escHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showMsg(id, msg, keep) {
+  const el = $(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+  if (!keep) setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+const fmtDate = d => d ? d.toLocaleString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
+const dirLabel = d => d === 'ja2en' ? '日→英' : '英→日';
+const modeLabel = m => m === 'card' ? 'カード' : 'テスト';
+
+// ── ログイン ──
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('loginErr').style.display = 'none';
+  const id = $('adminId').value.trim();
+  const pw = $('adminPw').value;
+  if (!/^[a-zA-Z0-9]+$/.test(id)) { showMsg('loginErr', 'IDはアルファベットと数字で入力してください。', true); return; }
+  const btn = $('loginBtn');
+  btn.disabled = true; btn.textContent = '確認中...';
+  try {
+    await signInWithEmailAndPassword(auth, `${id}@example.com`, pw);
+    const ok = await loadResults();
+    if (!ok) return;
+    sessionStorage.setItem(ADMIN_SESSION, '1');
+    enterAdmin();
+  } catch (err) {
+    const code = err.code || '';
+    if (code === 'auth/wrong-password' || code === 'auth/user-not-found' || code === 'auth/invalid-credential') {
+      showMsg('loginErr', 'IDまたはパスワードが正しくありません。', true);
+    } else if (code === 'auth/too-many-requests') {
+      showMsg('loginErr', 'ログインの試行回数が多すぎます。しばらく待ってから再試行してください。', true);
+    } else {
+      showMsg('loginErr', 'ログインに失敗しました。再度お試しください。', true);
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = 'ログイン';
+  }
+});
+
+function enterAdmin() {
+  $('loginScreen').style.display = 'none';
+  $('adminScreen').style.display = 'block';
+  $('topbarUser').textContent = (auth.currentUser?.email || '').split('@')[0] + ' でログイン中';
+  renderUsers();
+}
+
+$('logoutBtn').addEventListener('click', async () => {
+  sessionStorage.removeItem(ADMIN_SESSION);
+  await signOut(auth).catch(() => {});
+  allRows = [];
+  $('adminScreen').style.display = 'none';
+  $('loginScreen').style.display = 'flex';
+  $('adminPw').value = '';
+});
+
+// ページ再読み込み時は、このタブで管理者ログイン済みならそのまま入る
+onAuthStateChanged(auth, async user => {
+  if (!user || sessionStorage.getItem(ADMIN_SESSION) !== '1') return;
+  if (await loadResults()) enterAdmin();
+});
+
+// ── 記録の読み込み ──
+async function loadResults() {
+  try {
+    const snap = await getDocs(query(collection(db, 'vocab_results'), orderBy('at', 'desc'), limit(MAX_ROWS)));
+    allRows = snap.docs.map(d => {
+      const r = d.data();
+      return { ...r, at: r.at?.toDate ? r.at.toDate() : null };
+    });
+    $('loadErr').style.display = 'none';
+    buildDatasetOptions();
+    renderResults();
+    return true;
+  } catch (err) {
+    if (err.code === 'permission-denied') {
+      await signOut(auth).catch(() => {});
+      sessionStorage.removeItem(ADMIN_SESSION);
+      $('adminScreen').style.display = 'none';
+      $('loginScreen').style.display = 'flex';
+      showMsg('loginErr', 'このIDには管理者の権限がありません。Firebaseのルールに管理者として登録されているか確認してください。', true);
+    } else {
+      showMsg('loadErr', '記録を読み込めませんでした。時間をおいて「最新に更新」を押してください。', true);
+      console.error(err);
+      return $('adminScreen').style.display === 'block';
+    }
+    return false;
+  }
+}
+
+$('reloadBtn').addEventListener('click', async () => {
+  const b = $('reloadBtn');
+  b.disabled = true; b.textContent = '更新中...';
+  await loadResults();
+  b.disabled = false; b.textContent = '最新に更新';
+});
+
+function buildDatasetOptions() {
+  const sel = $('fDataset');
+  const current = sel.value;
+  const labels = [...new Set(allRows.map(r => r.dataset).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">すべて</option>' + labels.map(l => `<option value="${escHtml(l)}">${escHtml(l)}</option>`).join('');
+  if (labels.includes(current)) sel.value = current;
+}
+
+function filteredRows() {
+  const text = $('fText').value.trim().toLowerCase();
+  const kind = $('fKind').value;
+  const ds   = $('fDataset').value;
+  const from = $('fFrom').value ? new Date($('fFrom').value + 'T00:00:00') : null;
+  const to   = $('fTo').value   ? new Date($('fTo').value   + 'T23:59:59') : null;
+  return allRows.filter(r => {
+    if (text && !(`${r.uid || ''} ${r.name || ''}`.toLowerCase().includes(text))) return false;
+    if (kind && r.kind !== kind) return false;
+    if (ds && r.dataset !== ds) return false;
+    if (from && (!r.at || r.at < from)) return false;
+    if (to && (!r.at || r.at > to)) return false;
+    return true;
+  });
+}
+
+function renderResults() {
+  const rows = filteredRows();
+  const body = $('resultBody');
+  $('resultCount').textContent = rows.length;
+
+  const totalQ = rows.reduce((s, r) => s + (r.total || 0), 0);
+  const totalC = rows.reduce((s, r) => s + (r.correct || 0), 0);
+  $('statCount').innerHTML     = `${rows.length}<small>回</small>`;
+  $('statStudents').innerHTML  = `${new Set(rows.map(r => r.uid)).size}<small>人</small>`;
+  $('statQuestions').innerHTML = `${totalQ.toLocaleString()}<small>問</small>`;
+  $('statAvg').innerHTML       = totalQ ? `${Math.round(totalC / totalQ * 100)}<small>%</small>` : '—';
+
+  if (rows.length === 0) {
+    body.innerHTML = '';
+    $('resultEmpty').style.display = 'block';
+    $('resultEmpty').innerHTML = allRows.length === 0
+      ? 'まだ記録がありません。<br>生徒がテストを採点するか、カード学習を最後まで終えると、ここに表示されます。'
+      : '条件に合う記録がありません。';
+    return;
+  }
+  $('resultEmpty').style.display = 'none';
+  body.innerHTML = rows.map(r => {
+    const pct = r.pct ?? 0;
+    const cls = pct >= 80 ? 'score-good' : pct >= 50 ? 'score-mid' : 'score-low';
+    const kindTag = r.kind === 'idiom' ? '<span class="tag tag-idiom">熟語</span>' : '<span class="tag tag-word">単語</span>';
+    return `<tr>
+      <td class="muted">${fmtDate(r.at)}</td>
+      <td class="strong">${escHtml(r.uid)}</td>
+      <td>${escHtml(r.name) || '<span class="muted">—</span>'}</td>
+      <td>${kindTag} ${escHtml(r.dataset)}</td>
+      <td>${modeLabel(r.mode)}・${dirLabel(r.direction)}${r.retry ? '<span class="tag tag-retry">再テスト</span>' : ''}</td>
+      <td class="muted">${r.retry ? '—' : `${r.rangeFrom ?? ''}〜${r.rangeTo ?? ''}`}</td>
+      <td class="num">${r.correct ?? 0}/${r.total ?? 0}</td>
+      <td class="num"><span class="score-pill ${cls}">${pct}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+['fText', 'fKind', 'fDataset', 'fFrom', 'fTo'].forEach(id => $(id).addEventListener('input', renderResults));
+
+$('exportBtn').addEventListener('click', () => {
+  const rows = filteredRows();
+  if (rows.length === 0) { showMsg('loadErr', '出力する記録がありません。'); return; }
+  const sheet = XLSX.utils.json_to_sheet(rows.map(r => ({
+    '日時':     fmtDate(r.at),
+    'ID':       r.uid || '',
+    '名前':     r.name || '',
+    '種類':     r.kind === 'idiom' ? '英熟語' : '英単語',
+    '教材':     r.dataset || '',
+    '形式':     modeLabel(r.mode),
+    '出題方向': dirLabel(r.direction),
+    '再テスト': r.retry ? '○' : '',
+    '範囲(開始)': r.retry ? '' : (r.rangeFrom ?? ''),
+    '範囲(終了)': r.retry ? '' : (r.rangeTo ?? ''),
+    '正解数':   r.correct ?? 0,
+    '問題数':   r.total ?? 0,
+    '正答率(%)': r.pct ?? 0,
+  })));
+  sheet['!cols'] = [{wch:18},{wch:14},{wch:12},{wch:8},{wch:18},{wch:8},{wch:9},{wch:8},{wch:10},{wch:10},{wch:8},{wch:8},{wch:10}];
+  const book = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book, sheet, '実施記録');
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  XLSX.writeFile(book, `英単語テスト_実施記録_${stamp}.xlsx`);
+});
+
+// ── 簡易ログインのユーザー管理（ブラウザ内保存） ──
+const STORAGE_KEY = 'vocab_simple_users';
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
-
-function showMsg(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 3000);
-}
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('loginBtn');
-  btn.disabled = true;
-  btn.textContent = '確認中...';
-
-  const pw   = document.getElementById('adminPw').value;
-  const hash = await sha256(pw);
-
-  if (hash === ADMIN_PW_HASH) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminScreen').style.display = 'block';
-    renderUsers();
-  } else {
-    const err = document.getElementById('loginErr');
-    err.textContent = 'パスワードが正しくありません。';
-    err.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'ログイン';
-  }
-});
-
-function logout() {
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('adminScreen').style.display = 'none';
-  document.getElementById('adminPw').value = '';
-}
-
-function loadUsers() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-  catch { return []; }
-}
-
+function loadUsers() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
 function saveUsers(users) { localStorage.setItem(STORAGE_KEY, JSON.stringify(users)); }
 
 function renderUsers() {
   const users = loadUsers();
-  const tbody = document.getElementById('userTableBody');
-  const empty = document.getElementById('emptyState');
-  document.getElementById('userCount').textContent = users.length;
-  tbody.innerHTML = '';
-  if (users.length === 0) { empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  users.forEach((u, i) => {
-    const tr = document.createElement('tr');
-    const date = u.createdAt
-      ? new Date(u.createdAt).toLocaleString('ja-JP', {
-          year:'numeric', month:'2-digit', day:'2-digit',
-          hour:'2-digit', minute:'2-digit'
-        })
-      : '—';
-    tr.innerHTML = `
-      <td><span class="user-id">${escHtml(u.id)}</span></td>
-      <td><span class="user-date">${date}</span></td>
-      <td style="text-align:right">
-        <button class="btn btn-danger" onclick="deleteUser(${i})">削除</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
+  const tbody = $('userTableBody');
+  $('userCount').textContent = users.length;
+  $('emptyState').style.display = users.length ? 'none' : 'block';
+  tbody.innerHTML = users.map((u, i) => `<tr>
+      <td class="strong">${escHtml(u.id)}</td>
+      <td class="muted">${u.createdAt ? fmtDate(new Date(u.createdAt)) : '—'}</td>
+      <td style="text-align:right"><button class="btn btn-danger" data-del="${i}">削除</button></td>
+    </tr>`).join('');
 }
 
-async function addUser() {
-  const id = document.getElementById('newId').value.trim();
-  const pw = document.getElementById('newPw').value;
+$('userTableBody').addEventListener('click', e => {
+  const i = e.target.dataset?.del;
+  if (i === undefined) return;
+  const users = loadUsers();
+  const id = users[i]?.id;
+  if (!id || !confirm(`"${id}" を削除しますか？`)) return;
+  users.splice(+i, 1);
+  saveUsers(users);
+  renderUsers();
+  showMsg('delOk', `"${id}" を削除しました。`);
+});
+
+$('addUserBtn').addEventListener('click', async () => {
+  const id = $('newId').value.trim();
+  const pw = $('newPw').value;
   if (!id || !pw) { showMsg('addErr', 'IDとパスワードを入力してください。'); return; }
   if (!/^[a-zA-Z0-9]+$/.test(id)) { showMsg('addErr', 'IDはアルファベットと数字のみ使用できます。'); return; }
   if (pw.length < 6) { showMsg('addErr', 'パスワードは6文字以上にしてください。'); return; }
   const users = loadUsers();
   if (users.some(u => u.id === id)) { showMsg('addErr', `ID "${id}" はすでに登録されています。`); return; }
-  const hash = await sha256(pw);
-  users.push({ id, hash, createdAt: Date.now() });
+  users.push({ id, hash: await sha256(pw), createdAt: Date.now() });
   saveUsers(users);
-  document.getElementById('newId').value = '';
-  document.getElementById('newPw').value = '';
+  $('newId').value = ''; $('newPw').value = '';
   renderUsers();
   showMsg('addOk', `"${id}" を追加しました。`);
-}
-
-function deleteUser(index) {
-  const users = loadUsers();
-  const id = users[index]?.id;
-  if (!id) return;
-  if (!confirm(`"${id}" を削除しますか？`)) return;
-  users.splice(index, 1);
-  saveUsers(users);
-  renderUsers();
-  showMsg('delOk', `"${id}" を削除しました。`);
-}
-
-function escHtml(str) {
-  return str.replace(/[&<>"']/g, c =>
-    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+});
 </script>
 </body>
 </html>

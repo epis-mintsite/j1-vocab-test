@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 「管理者ID」の部分を、ミントサイトのログインIDに書き換える（英字は小文字で）
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in ['管理者ID@example.com'];
+    }
+
+    match /vocab_results/{docId} {
+      allow read: if isAdmin();
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'datasetId', 'dataset', 'rangeFrom', 'rangeTo', 'mode', 'kind',
+             'direction', 'total', 'correct', 'pct', 'retry', 'name',
+             'uid', 'authUid', 'at'])
+        && request.resource.data.authUid == request.auth.uid
+        && request.resource.data.uid + '@example.com' == request.auth.token.email
+        && request.resource.data.at == request.time
+        && request.resource.data.total is int
+        && request.resource.data.total > 0
+        && request.resource.data.total <= 3000
+        && request.resource.data.correct is int
+        && request.resource.data.correct >= 0
+        && request.resource.data.correct <= request.resource.data.total
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 40
+        && request.resource.data.dataset is string
+        && request.resource.data.dataset.size() <= 100;
+
+      allow update, delete: if false;
+    }
+  }
+}
