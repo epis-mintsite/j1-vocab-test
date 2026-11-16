@@ -216,6 +216,12 @@ body {
   box-shadow: 0 0 0 1px var(--notion-blue), var(--shadow-card);
 }
 .ds-btn.loading { opacity: 0.5; pointer-events: none; }
+.ds-group-label {
+  flex-basis: 100%;
+  font-size: 12px; font-weight: 600; color: var(--gray-300);
+  letter-spacing: 0.04em;
+  margin: 10px 0 0;
+}
 .ds-btn .ds-name {
   font-size: 14px; font-weight: 600; color: var(--black); display: block;
 }
@@ -1006,20 +1012,33 @@ const BUILTIN = [
   { id:'eiken2',    label:'英検® ２級',   file:'words_eiken2.js'    },
   { id:'eiken_pre2',label:'英検® 準２級', file:'words_eiken_pre2.js'},
   { id:'eiken3',    label:'英検® ３級',   file:'words_eiken3.js'    },
+  { id:'idioms_j1',        label:'英検® 準１級 熟語', file:'words_idioms_j1.js',        group:'idiom' },
+  { id:'idioms_eiken2',    label:'英検® ２級 熟語',   file:'words_idioms_eiken2.js',    group:'idiom' },
+  { id:'idioms_eiken_pre2',label:'英検® 準２級 熟語', file:'words_idioms_eiken_pre2.js',group:'idiom' },
+  { id:'idioms_eiken3',    label:'英検® ３級 熟語',   file:'words_idioms_eiken3.js',    group:'idiom' },
 ];
 const STORAGE_KEY = 'customDatasets_v1';
 let currentDS = null, loadedCache = {}, parsedWords = [];
 
 const getCustoms  = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch { return []; } };
 const saveCustoms = list => localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+const unitOf = () => (currentDS && /^idioms_/.test(currentDS.id)) ? '個' : '語';
 const allDatasets = () => [...BUILTIN.map(d=>({...d,custom:false})), ...getCustoms().map(d=>({...d,custom:true}))];
 
 function buildGrid() {
   const grid = document.getElementById('datasetGrid');
   grid.innerHTML = '';
+  let idiomHeaderDone = false;
   allDatasets().forEach(ds => {
+    if (ds.group === 'idiom' && !idiomHeaderDone) {
+      const h = document.createElement('p');
+      h.className = 'ds-group-label'; h.textContent = '熟語';
+      grid.appendChild(h);
+      idiomHeaderDone = true;
+    }
     const cached = loadedCache[ds.id];
-    const count  = cached ? (cached.total > 0 ? `${cached.total}語` : '（準備中）') : '読み込み中…';
+    const unit   = ds.group === 'idiom' ? '個' : '語';
+    const count  = cached ? (cached.total > 0 ? `${cached.total}${unit}` : '（準備中）') : '読み込み中…';
     const btn = document.createElement('button');
     btn.className = 'ds-btn' + (cached&&cached.total===0?' loading':'') + (currentDS&&currentDS.id===ds.id?' active':'');
     btn.id = 'dsbtn-'+ds.id;
@@ -1075,7 +1094,7 @@ function applyDS(ds) {
   currentDS = ds;
   document.getElementById('appTitle').textContent    = ds.label;
   document.getElementById('appSubtitle').textContent = ds.total > 0
-    ? `${ds.total}語が利用可能です`
+    ? `${ds.total}${unitOf()}が利用可能です`
     : 'データが未登録です';
   const max = ds.total || 1;
   document.getElementById('rangeTo').max   = max;
@@ -1225,7 +1244,7 @@ function updateInfo() {
   const n   =mode==='all'?Math.max(0,to-from+1):Math.min(cnt,Math.max(0,to-from+1));
   const el  =document.getElementById('infoText');
   if (n>0) {
-    el.innerHTML=`<span class="info-badge">📝 ${n}語出題されます</span>`;
+    el.innerHTML=`<span class="info-badge">📝 ${n}問出題されます</span>`;
   } else {
     el.innerHTML='';
   }
@@ -1307,7 +1326,7 @@ function lev(a,b){const m=a.length,n=b.length,dp=Array.from({length:m+1},()=>Arr
 function sim(a,b){if(!a||!b)return 0;return 1-lev(a,b)/Math.max(a.length,b.length);}
 function isCorrect(userAns,expected,dir,word){
   const ans=userAns.trim(); if(!ans)return false;
-  if(dir==='ja2en') return ans.toLowerCase()===expected.toLowerCase();
+  if(dir==='ja2en'){const n=s=>s.toLowerCase().replace(/[’']/g,"'").replace(/\s+/g,' ').trim();return n(ans)===n(expected);}
   const nA=normalize(ans),nE=normalize(expected);
   if(nA===nE)return true;
   const parts=expected.split(/[、，,／/]/).map(p=>p.trim()).filter(Boolean);
@@ -1494,9 +1513,9 @@ function showCardResult() {
       <div class="result-score">${known}/${total}</div>
       <div class="result-pct">${pct}% 知ってた</div>
       <div class="card-stats">
-        <span class="card-stat-know">○ 知ってた：${known}語</span>
-        <span class="card-stat-unknown">✕ 知らなかった：${unknown}語</span>
-        ${skipped > 0 ? `<span class="card-stat-skip">－ 未回答：${skipped}語</span>` : ''}
+        <span class="card-stat-know">○ 知ってた：${known}${unitOf()}</span>
+        <span class="card-stat-unknown">✕ 知らなかった：${unknown}${unitOf()}</span>
+        ${skipped > 0 ? `<span class="card-stat-skip">－ 未回答：${skipped}${unitOf()}</span>` : ''}
       </div>
       <div class="result-actions">
         ${unknown + skipped > 0
