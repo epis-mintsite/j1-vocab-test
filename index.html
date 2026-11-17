@@ -547,6 +547,12 @@ body {
 }
 .result-title { font-size: 22px; font-weight: 700; letter-spacing: -0.25px; }
 .result-pct { font-size: 16px; color: var(--gray-500); margin-bottom: 28px; }
+.record-status {
+  font-size: 12px; line-height: 1.6; color: var(--gray-500);
+  margin: -16px auto 20px; max-width: 360px;
+}
+.record-status.is-ok { color: #15803d; }
+.record-status.is-ng { color: #b45309; }
 .result-actions { display: flex; flex-direction: column; gap: 8px; }
 
 /* ── Responsive ── */
@@ -1395,6 +1401,7 @@ function checkAnswers(){
       <div class="result-title">採点結果</div>
       <div class="result-score">${correct}/${testWords.length}</div>
       <div class="result-pct">${pct}% 正解</div>
+      <p class="record-status" id="recordStatus">先生に結果を送信中…</p>
       <div class="result-actions">
         <button class="btn btn-primary btn-full" onclick="retryWrong()">間違えた問題を再テスト</button>
         <button class="btn btn-secondary btn-full" onclick="backToSettings()">設定に戻る</button>
@@ -1552,6 +1559,7 @@ function showCardResult() {
       <div class="result-title">カード学習 完了 🎉</div>
       <div class="result-score">${known}/${total}</div>
       <div class="result-pct">${pct}% 知ってた</div>
+      <p class="record-status" id="recordStatus">先生に結果を送信中…</p>
       <div class="card-stats">
         <span class="card-stat-know">○ 知ってた：${known}${unitOf()}</span>
         <span class="card-stat-unknown">✕ 知らなかった：${unknown}${unitOf()}</span>
@@ -1593,7 +1601,14 @@ function sendResult(correct, total) {
     name: (getStudentName() || '').slice(0, 40),
   };
   isRetry = true;
-  if (window.recordResult) window.recordResult(payload);
+  const show = r => {
+    const el = document.getElementById('recordStatus');
+    if (!el) return;
+    el.textContent = (r.ok ? '✓ ' : '※ ') + r.message;
+    el.className = 'record-status ' + (r.ok ? 'is-ok' : 'is-ng');
+  };
+  if (!window.recordResult) { setTimeout(() => show({ ok: false, message: '送信の準備ができていませんでした。ページを再読み込みしてからもう一度お試しください。' })); return; }
+  window.recordResult(payload).then(r => setTimeout(() => show(r)));
 }
 
 // ── Test Creation Log ─────────────────────────────────────
@@ -1725,15 +1740,21 @@ window.firebaseSignOut = () => signOut(auth);
 window.recordResult = async (payload) => {
   let session = null;
   try { session = JSON.parse(sessionStorage.getItem('vocab_auth') || 'null'); } catch {}
+  if (!session || session.type !== 'epis') {
+    return { ok: false, reason: 'not-epis', message: 'ミントサイトのIDでログインしていないため、この結果は先生に送られません。' };
+  }
   const user = await authReady;
   // 共用端末で前の生徒のFirebaseログインが残っている場合に、別人の記録として保存しない
-  if (!user || !session || session.type !== 'epis') return;
-  const uid = (user.email || '').split('@')[0];
-  if (uid !== String(session.uid || '').toLowerCase()) return;
+  const uid = (user?.email || '').split('@')[0];
+  if (!user || uid !== String(session.uid || '').toLowerCase()) {
+    return { ok: false, reason: 'no-auth', message: 'ログイン情報を確認できなかったため、先生に送れませんでした。一度ログアウトして、もう一度ログインしてください。' };
+  }
   try {
     await addDoc(collection(db, 'vocab_results'), { ...payload, uid, authUid: user.uid, at: serverTimestamp() });
+    return { ok: true, message: '結果を先生に送信しました' };
   } catch (e) {
     console.warn('結果の記録に失敗しました', e);
+    return { ok: false, reason: 'write-failed', message: `先生への送信に失敗しました（${e.code || e.message || 'エラー'}）。` };
   }
 };
 </script>
