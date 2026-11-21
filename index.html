@@ -10,6 +10,17 @@
   try {
     var EXPIRE_MS = 12 * 60 * 60 * 1000;
 
+    // まなびログから #ft=（本人確認つきの自動ログイン用トークン）が渡された場合は、
+    // タブ内に保存してすぐ URL から消す（実際のログインは下のモジュールが行う）
+    var hp = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+    var ft = hp.get('ft');
+    if (ft) {
+      try { sessionStorage.setItem('vocab_ft', ft); } catch (e) {}
+      hp.delete('ft');
+      var rest = hp.toString();
+      history.replaceState(null, '', location.pathname + location.search + (rest ? '#' + rest : ''));
+    }
+
     // まなびログ等から ?uid= パラメータで渡された場合は自動認証
     var params = new URLSearchParams(location.search);
     var uid = params.get('uid');
@@ -1721,7 +1732,7 @@ async function appLogout() {
 </script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, onAuthStateChanged, signOut, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const app = initializeApp({
@@ -1731,21 +1742,47 @@ const app = initializeApp({
   messagingSenderId: '478150067283',
   appId:             '1:478150067283:web:7fe350500f78d12cd6f2a6',
 });
-const auth = getAuth(app);
+// 埋め込み表示（iframe）などで保存領域が使えなくても動くよう、最後はメモリ保持にする
+const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence],
+});
 const db   = getFirestore(app);
 const authReady = new Promise(resolve => { const off = onAuthStateChanged(auth, u => { off(); resolve(u); }); });
+
+// まなびログから渡された自動ログイン用トークンがあれば、本人としてログインする。
+// 失敗しても画面は使える（その場合、結果は先生に送られない）。
+const ssoSignIn = (async () => {
+  let ft = null;
+  try { ft = sessionStorage.getItem('vocab_ft'); } catch {}
+  if (!ft) return null;
+  try {
+    await authReady;                           // 前回のログイン状態の復元を待つ
+    const cred = await signInWithCustomToken(auth, ft);
+    try { sessionStorage.removeItem('vocab_ft'); } catch {}
+    return cred.user;
+  } catch (e) {
+    console.warn('自動ログインに失敗しました', e);
+    try { sessionStorage.removeItem('vocab_ft'); } catch {}
+    return null;
+  }
+})();
 
 window.firebaseSignOut = () => signOut(auth);
 
 window.recordResult = async (payload) => {
   let session = null;
   try { session = JSON.parse(sessionStorage.getItem('vocab_auth') || 'null'); } catch {}
-  if (!session || session.type !== 'epis') {
+  // epis：ミントサイトのID・パスワードでログイン / sso：まなびログから開いた（自動ログイン用トークンで本人確認）
+  if (!session || (session.type !== 'epis' && session.type !== 'sso')) {
     return { ok: false, reason: 'not-epis', message: 'ミントサイトのIDでログインしていないため、この結果は先生に送られません。' };
   }
-  const user = await authReady;
+  await authReady;
+  await ssoSignIn;                              // 自動ログインがあれば完了を待つ
+  const user = auth.currentUser;
   // 共用端末で前の生徒のFirebaseログインが残っている場合に、別人の記録として保存しない
-  const uid = (user?.email || '').split('@')[0];
+  let email = user?.email || '';
+  if (user && !email) { try { email = (await user.getIdTokenResult()).claims.email || ''; } catch {} }
+  const uid = String(email).toLowerCase().split('@')[0];
   if (!user || uid !== String(session.uid || '').toLowerCase()) {
     return { ok: false, reason: 'no-auth', message: 'ログイン情報を確認できなかったため、先生に送れませんでした。一度ログアウトして、もう一度ログインしてください。' };
   }
